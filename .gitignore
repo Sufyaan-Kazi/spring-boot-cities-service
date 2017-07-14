@@ -19,6 +19,12 @@ hs_err_pid*
 .project
 .settings/
 
+# IntelliJ Stuff
+.idea/
+.idea/gradle.xml
+.idea/modules.xml
+*.iml
+
 # Misc Stuff
 *.old
 *.log
