@@ -12,7 +12,7 @@ import java.sql.DriverManager;
 
 @Configuration
 //@ConfigurationProperties(prefix="spring.datasource")
-@Profile("local")
+@Profile("oshift")
 public class DataSourceConfig {
 
     //private String driverClassName;
