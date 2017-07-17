@@ -38,7 +38,7 @@ public class DataSourceConfig {
             //Class.forName(this.driverClassName);
             dataSource = new SimpleDriverDataSource();
             StringBuilder url = new StringBuilder("jdbc:mysql://");
-            url.append(host).append(":").append(port).append("/").append(dbName);
+            url.append(host).append(":").append(port).append("/").append(dbName).append("?autoReconnect=true&useSSL=false");
             dataSource.setDriver(DriverManager.getDriver(url.toString()));
             dataSource.setUrl(url.toString());
             dataSource.setUsername(this.username);
