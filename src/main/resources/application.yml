@@ -19,3 +19,4 @@ spring:
   profiles: oshift
   DB_PORT: 3306
   DB_NAME: cities
+  DB_HOST: mysql
