@@ -7,6 +7,7 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath('se.transmode.gradle:gradle-docker:1.2')
     }
 }
 
@@ -14,14 +15,20 @@ plugins {
     id "io.spring.dependency-management" version "0.6.0.RELEASE"
 }
 
+group = 'sufyaankazi'
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'docker'
 
 jar {
     baseName = 'cities-service'
 }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -59,6 +66,18 @@ eclipse {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '3.0'
+}
+
+task buildDocker(type: Docker, dependsOn: build) {
+  push = true
+  applicationName = jar.baseName
+  dockerfile = file('src/main/docker/Dockerfile')
+  doFirst {
+    copy {
+      from jar
+      into stageDir
+    }
+  }
 }
 
 test {
