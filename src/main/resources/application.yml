@@ -13,3 +13,9 @@ logging:
         springframework:
            web: WARN
            cloud: WARN
+
+---
+spring:
+  profiles: oshift
+  DB_PORT: 3306
+  DB_NAME: cities
