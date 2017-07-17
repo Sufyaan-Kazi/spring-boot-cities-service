@@ -22,9 +22,9 @@ public class DataSourceConfig {
     private String host;
     @Value("${DB_NAME}")
     private String dbName;
-    @Value("${DB_USER}")
+    @Value("${MYSQL_USER}")
     private String username;
-    @Value("${DB_PASSWORD}")
+    @Value("${MYSQL_PASSWORD}")
     private String password;
 
     public DataSourceConfig() {
