@@ -11,7 +11,7 @@ resources:
     branch: version
     driver: git
     file: version
-    initial_version: 0.0.0
+    initial_version: 0.0.1
     uri: {{GIT-SSH-URI}}
     private_key: {{GIT_KEY}}
     git_user: {{GIT_USER}}
