@@ -6,17 +6,6 @@ resources:
     uri: {{git-uri}}
     branch: openshift
 
-- name: resource-version
-  type: semver
-  source:
-    branch: version
-    driver: git
-    file: version
-    initial_version: 0.0.0
-    uri: {{GIT-SSH-URI}}
-    private_key: {{GIT_KEY}}
-    git_user: {{GIT_USER}}
-
 jobs:
 - name: testSrc
   build_logs_to_retain: 5
@@ -33,12 +22,7 @@ jobs:
     passed:
       - testSrc
     trigger: true
-  - get: resource-version
-    params:
-      bump: patch
   - task: package
     file: cities-service/ci/tasks/package.yml
     params:
       APPNAME: {{APPNAME}}
-  - put: resource-version
-    params: {file: resource-version/number}
