@@ -16,7 +16,6 @@ import java.sql.DriverManager;
 public class OShiftDataSourceConfig {
 
     //private String driverClassName;
-    @Value("${DATABASE_SERVICE_PORT}")
     private String port;
     @Value("${DATABASE_SERVICE_NAME}")
     private String host;
