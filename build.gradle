@@ -51,8 +51,8 @@ dependencies {
 	compile 'org.springframework.cloud:spring-cloud-spring-service-connector'
 	compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
 	//runtime("org.hsqldb:hsqldb")
-	runtime('com.h2database:h2')
-	//runtime("mysql:mysql-connector-java")
+	//runtime('com.h2database:h2')
+	runtime("mysql:mysql-connector-java")
 	runtime("org.flywaydb:flyway-core")
     testCompile('org.springframework.boot:spring-boot-starter-test') 
 }
