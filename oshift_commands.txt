@@ -1,0 +1,23 @@
+oc delete project --all
+github_url=https://github.com/Sufyaan-Kazi/spring-boot-cities-service#openshift
+appname=`echo ${github_url} | sed 's/.*\///' | sed 's/#.*//'`
+
+echo $github_url
+echo $appname
+
+oc new-project ${appname} --display-name="Cities backend"
+
+oc process openshift//mysql-ephemeral --param-file=src/main/resources/mysql.env -l name=${appname} | oc create -f -
+oc get po | grep -v deploy | grep mysql-
+oc logs dc/mysql 
+
+oc create -f https://raw.githubusercontent.com/jorgemoralespou/s2i-java/master/ose3/s2i-java-imagestream.json
+
+oc new-app s2i-java:latest~${github_url} -l name=${appname} --env-file=src/main/resources/mysql.env
+oc logs bc/${appname} -f
+
+oc logs bc/${appname} | tail -n 1 | grep "Push successful" | wc -l | xargs
+oc get dc | grep ${appname} | xargs | cut -d ' ' -f 4
+
+oc expose svc/${appname}
+open "http://$(oc get routes | grep $appname | xargs | cut -d ' ' -f 2)/cities"
