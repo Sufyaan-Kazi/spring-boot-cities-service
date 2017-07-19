@@ -16,11 +16,11 @@ import java.sql.DriverManager;
 public class OShiftDataSourceConfig {
 
     //private String driverClassName;
-    @Value("${DB_PORT}")
+    @Value("${DATABASE_SERVICE_PORT}")
     private String port;
-    @Value("${DB_HOST}")
+    @Value("${DATABASE_SERVICE_NAME}")
     private String host;
-    @Value("${DB_NAME}")
+    @Value("${MYSQL_DATABASE}")
     private String dbName;
     @Value("${MYSQL_USER}")
     private String username;
