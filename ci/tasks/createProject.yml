@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: amazeeio/oc
+    repository: openshiftdemos/oc
 
 inputs:
   - name: spring-boot-cities-service
