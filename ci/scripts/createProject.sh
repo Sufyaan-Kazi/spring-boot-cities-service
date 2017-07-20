@@ -3,10 +3,10 @@
 
 main()
 {
+  oc_login
   if [ ! -z $CREATE_FRESH_PROJ ]
   then
     echo_msg "Creating Project"
-    oc_login
     EXISTS=`oc projects | grep $APPNAME | wc -l | xargs`
     if [ $EXISTS -ne 0 ]
     then
@@ -14,8 +14,24 @@ main()
       sleep 5
     fi
     oc new-project $APPNAME
-    oc logout
   fi
+
+  EXISTS=`oc get dc | grep mysql | wc -l | xargs`
+  if [ $EXISTS -eq 0 ]
+  then
+    PLAN=`oc get template -n openshift | grep mysql- | grep ephemeral | wc -l | xargs`
+    if [ $PLAN -eq 0 ]
+    then
+      PLAN=mysql-persistent
+    else
+      PLAN=mysql-ephemeral
+    fi
+    oc process openshift/$PLAN --param-file=src/main/resources/mysql.env -l name=${APPNAME} | oc create -f -
+    sleep 3
+    oc get logs dc/mysql
+  fi
+  oc get dc
+  oc logout
 }
 
 trap 'abort $LINENO' 0
