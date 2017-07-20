@@ -5,6 +5,7 @@ resources:
   source:
     uri: {{git-uri}}
     branch: openshift
+    interval: 5s
 
 - name: resource-version
   type: semver
