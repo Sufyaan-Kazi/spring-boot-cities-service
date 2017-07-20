@@ -38,7 +38,7 @@ echo_msg()
 oc_login()
 {
   oc version
-  oc login -$uri -u $username -p $password
+  oc login $uri -u $username -p $password
 }
 
 exitIfNull()
