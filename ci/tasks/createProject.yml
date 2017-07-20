@@ -7,7 +7,7 @@ image_resource:
     repository: thelab/openshift-client
 
 inputs:
-  - name: cities-service
+  - name: spring-boot-cities-service
 
 run:
-  path: "cities-service/ci/scripts/createProject.sh"
+  path: "spring-boot-cities-service/ci/scripts/createProject.sh"

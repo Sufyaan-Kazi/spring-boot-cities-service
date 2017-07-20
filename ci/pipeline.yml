@@ -22,18 +22,18 @@ jobs:
 - name: testSrc
   build_logs_to_retain: 5
   plan:
-  - get: cities-service
+  - get: spring-boot-cities-service
     trigger: true
   - task: test
-    file: cities-service/ci/tasks/test.yml
+    file: spring-boot-cities-service/ci/tasks/test.yml
 
 - name: createProject
   build_logs_to_retain: 5
   plan:
-  - get: cities-service
+  - get: spring-boot-cities-service
     trigger: true
   - task: createProject
-    file: cities-service/ci/tasks/createProject.yml
+    file: spring-boot-cities-service/ci/tasks/createProject.yml
     params:
       CREATE_FRESH_PROJ: {{CREATE_FRESH_PROJ}}
       uri: {{OSHIFT_URI}}
@@ -45,12 +45,12 @@ jobs:
 - name: prepSpace
   build_logs_to_retain: 5
   plan:
-  - get: cities-service
+  - get: spring-boot-cities-service
     passed:
       - createProject
     trigger: true
   - task: prepSpace
-    file: cities-service/ci/tasks/prepPCFSpace.yml
+    file: spring-boot-cities-service/ci/tasks/prepPCFSpace.yml
     params:
       uri: {{OSHIFT_URI}}
       project: {{APPNAME}}
@@ -62,7 +62,7 @@ jobs:
 - name: packageNPush
   build_logs_to_retain: 5
   plan:
-  - get: cities-service
+  - get: spring-boot-cities-service
     passed:
       - testSrc
       - prepSpace
@@ -71,18 +71,18 @@ jobs:
     params:
       bump: patch
   - task: package
-    file: cities-service/ci/tasks/package.yml
+    file: spring-boot-cities-service/ci/tasks/package.yml
     params:
       APPNAME: {{APPNAME}}
   - put: resource-version
     params: {file: resource-version/number}
   - task: amendManifest
-    file: cities-service/ci/tasks/amendManifest.yml
+    file: spring-boot-cities-service/ci/tasks/amendManifest.yml
     params:
       APPNAME: {{APPNAME}}
       username: {{OSHIFT_USER}}
   - task: addVersionInfo
-    file: cities-service/ci/tasks/addVersionInfo.yml
+    file: spring-boot-cities-service/ci/tasks/addVersionInfo.yml
     params:
       uri: {{OSHIFT_URI}}
       project: {{APPNAME}}
@@ -93,12 +93,12 @@ jobs:
 - name: testOnPCF
   build_logs_to_retain: 5
   plan:
-  - get: cities-service
+  - get: spring-boot-cities-service
     passed:
       - packageNPush
     trigger: true
   - task: test
-    file: cities-service/ci/tasks/testOnPCF.yml
+    file: spring-boot-cities-service/ci/tasks/testOnPCF.yml
     params:
       uri: {{OSHIFT_URI}}
       project: {{APPNAME}}
