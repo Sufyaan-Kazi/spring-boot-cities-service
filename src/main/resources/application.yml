@@ -11,6 +11,10 @@ logging:
            web: WARN
            cloud: WARN
 
+spring:
+  profiles:
+    active: oshift
+
 ---
 spring:
   profiles: oshift
