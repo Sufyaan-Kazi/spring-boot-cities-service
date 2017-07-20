@@ -5,7 +5,6 @@ set -e
 main()
 {
   oc_login 
-  summaryOfServices
   EXISTS=`oc get dc | grep mysql | wc -l | xargs`
   if [ $EXISTS -eq 0 ]
   then
