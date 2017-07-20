@@ -42,29 +42,13 @@ jobs:
       password: {{OSHIFT_PASS}}
       APPNAME: {{APPNAME}}
 
-- name: createDB
-  build_logs_to_retain: 5
-  plan:
-  - get: spring-boot-cities-service
-    passed:
-      - createProject
-    trigger: true
-  - task: createDB
-    file: spring-boot-cities-service/ci/tasks/createDB.yml
-    params:
-      uri: {{OSHIFT_URI}}
-      project: {{APPNAME}}
-      username: {{OSHIFT_USER}}
-      password: {{OSHIFT_PASS}}
-      APPNAME: {{APPNAME}}
-
 - name: packageNPush
   build_logs_to_retain: 5
   plan:
   - get: spring-boot-cities-service
     passed:
       - testSrc
-      - createDB
+      - createProject
     trigger: true
   - get: resource-version
     params:
