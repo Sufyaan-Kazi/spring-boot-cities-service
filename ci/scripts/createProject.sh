@@ -3,13 +3,13 @@
 
 main()
 {
-  if [ ! -z $CREATE_FRESH_SPACE ]
+  if [ ! -z $CREATE_FRESH_PROJ ]
   then
     echo_msg "Creating space"
-    cf_login
-    cf delete-space $space -f
-    cf create-space $space
-    cf logout
+    oc_login
+    oc delete project $APPNAME
+    oc new-project $APPNAME
+    oc logout
   fi
 }
 

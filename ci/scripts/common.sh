@@ -35,10 +35,10 @@ echo_msg()
   echo "************** ${1} **************"
 }
 
-cf_login()
+oc_login()
 {
-  cf --version
-  cf login -a $api -u $username -p $password -o $organization -s $space $ssl
+  oc version
+  oc login -$uri -u $username -p $password
 }
 
 exitIfNull()

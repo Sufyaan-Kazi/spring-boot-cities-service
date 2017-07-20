@@ -3,7 +3,8 @@ resources:
 - name: cities-service
   type: git
   source:
-    uri: https://github.com/Sufyaan-Kazi/spring-boot-cities-service.git
+    uri: {{git-uri}}
+    branch: openshift
 
 - name: resource-version
   type: semver
@@ -12,7 +13,7 @@ resources:
     driver: git
     file: version
     initial_version: 0.0.0
-    uri: git@github.com:Sufyaan-Kazi/spring-boot-cities-service.git
+    uri: {{GIT-SSH-URI}}
     git_user: {{GIT_USER}}
     private_key: {{GIT_KEY}}
 
