@@ -3,8 +3,18 @@ resources:
 - name: cities-service
   type: git
   source:
-    uri: {{git-uri}}
-    branch: openshift
+    uri: https://github.com/Sufyaan-Kazi/spring-boot-cities-service.git
+
+- name: resource-version
+  type: semver
+  source:
+    branch: version
+    driver: git
+    file: version
+    initial_version: 0.0.0
+    uri: git@github.com:Sufyaan-Kazi/spring-boot-cities-service.git
+    git_user: {{GIT_USER}}
+    private_key: {{GIT_KEY}}
 
 jobs:
 - name: testSrc
@@ -15,14 +25,82 @@ jobs:
   - task: test
     file: cities-service/ci/tasks/test.yml
 
+- name: createProject
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    trigger: true
+  - task: createProject
+    file: cities-service/ci/tasks/createProject.yml
+    params:
+      CREATE_FRESH_PROJ: {{CREATE_FRESH_PROJ}}
+      uri: {{OSHIFT_URI}}
+      project: {{APPNAME}}
+      username: {{OSHIFT_USER}}
+      password: {{OSHIFT_PASS}}
+      APPNAME: {{APPNAME}}
+
+- name: prepSpace
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    passed:
+      - createProject
+    trigger: true
+  - task: prepSpace
+    file: cities-service/ci/tasks/prepPCFSpace.yml
+    params:
+      uri: {{OSHIFT_URI}}
+      project: {{APPNAME}}
+      username: {{OSHIFT_USER}}
+      password: {{OSHIFT_PASS}}
+      APPNAME: {{APPNAME}}
+      SERVICE_NAME: {{SERVICE_NAME}}
+
 - name: packageNPush
   build_logs_to_retain: 5
   plan:
   - get: cities-service
     passed:
       - testSrc
+      - prepSpace
     trigger: true
+  - get: resource-version
+    params:
+      bump: patch
   - task: package
     file: cities-service/ci/tasks/package.yml
     params:
       APPNAME: {{APPNAME}}
+  - put: resource-version
+    params: {file: resource-version/number}
+  - task: amendManifest
+    file: cities-service/ci/tasks/amendManifest.yml
+    params:
+      APPNAME: {{APPNAME}}
+      username: {{OSHIFT_USER}}
+  - task: addVersionInfo
+    file: cities-service/ci/tasks/addVersionInfo.yml
+    params:
+      uri: {{OSHIFT_URI}}
+      project: {{APPNAME}}
+      username: {{OSHIFT_USER}}
+      password: {{OSHIFT_PASS}}
+      APPNAME: {{APPNAME}}
+
+- name: testOnPCF
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    passed:
+      - packageNPush
+    trigger: true
+  - task: test
+    file: cities-service/ci/tasks/testOnPCF.yml
+    params:
+      uri: {{OSHIFT_URI}}
+      project: {{APPNAME}}
+      username: {{OSHIFT_USER}}
+      password: {{OSHIFT_PASS}}
+      APPNAME: {{APPNAME}}
+
