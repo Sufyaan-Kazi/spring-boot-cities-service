@@ -11,7 +11,7 @@ inputs:
 
 run:
   path: "spring-boot-cities-service/gradlew"
-  args: ["--build-file", "spring-boot-cities-service/build.gradle", "test"]
+  args: ["--build-file", "spring-boot-cities-service/build.gradle", "test", "-Dspring.profiles.active=local"]
 
 params:
   TERM: -dumb
