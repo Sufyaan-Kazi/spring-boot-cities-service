@@ -50,11 +50,15 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-data-rest")
 	compile 'org.springframework.cloud:spring-cloud-spring-service-connector'
 	compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
-	//runtime("org.hsqldb:hsqldb")
+	runtime("org.hsqldb:hsqldb")
 	//runtime('com.h2database:h2')
 	runtime("mysql:mysql-connector-java")
 	runtime("org.flywaydb:flyway-core")
     testCompile('org.springframework.boot:spring-boot-starter-test') 
+}
+
+bootRun {
+    systemProperties System.properties
 }
 
 eclipse {
@@ -65,7 +69,7 @@ eclipse {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.0'
+    gradleVersion = '4.0'
 }
 
 task buildDocker(type: Docker, dependsOn: build) {
