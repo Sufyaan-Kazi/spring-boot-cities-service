@@ -11,7 +11,7 @@ main()
     if [ $EXISTS -ne 0 ]
     then
       oc delete project $APPNAME
-      sleep 5
+      sleep 10
     fi
     oc new-project $APPNAME
   fi
