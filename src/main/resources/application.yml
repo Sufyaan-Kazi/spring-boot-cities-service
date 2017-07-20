@@ -16,3 +16,9 @@ spring:
   profiles: oshift
   datasource:
     type: com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource
+
+---
+spring:
+  profiles: local
+  datasource:
+    type: org.h2.jdbcx.JdbcDataSource
