@@ -7,7 +7,11 @@ main()
   then
     echo_msg "Creating Project"
     oc_login
-    #oc delete project $APPNAME
+    EXISTS=`oc projects | grep $APPNAME | wc -l | xargs`
+    if [ $EXISTS -eq 0 ]
+    then
+      oc delete project $APPNAME
+    fi
     oc new-project $APPNAME
     oc logout
   fi
