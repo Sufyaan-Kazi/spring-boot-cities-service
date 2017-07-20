@@ -7,11 +7,11 @@ image_resource:
     repository: java
 
 inputs:
-  - name: cities-service
+  - name: spring-boot-cities-service
 
 run:
-  path: "cities-service/gradlew"
-  args: ["--build-file", "cities-service/build.gradle", "test"]
+  path: "spring-boot-cities-service/gradlew"
+  args: ["--build-file", "spring-boot-cities-service/build.gradle", "test"]
 
 params:
   TERM: -dumb
