@@ -27,7 +27,9 @@ main()
       PLAN=mysql-ephemeral
     fi
     echo $PLAN
-    oc process openshift//$PLAN --param-file=src/main/resources/mysql.env -l name=${APPNAME} | oc create -f -
+    ls
+    cd $APPNAME
+    oc process openshift/$PLAN --param-file=src/main/resources/mysql.env -l name=${APPNAME} | oc create -f -
     sleep 3
     oc get logs dc/mysql
   fi
