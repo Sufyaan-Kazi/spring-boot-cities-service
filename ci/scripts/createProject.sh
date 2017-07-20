@@ -5,9 +5,9 @@ main()
 {
   if [ ! -z $CREATE_FRESH_PROJ ]
   then
-    echo_msg "Creating space"
+    echo_msg "Creating Project"
     oc_login
-    oc delete project $APPNAME
+    #oc delete project $APPNAME
     oc new-project $APPNAME
     oc logout
   fi

@@ -1,6 +1,6 @@
 ---
 resources:
-- name: cities-service
+- name: spring-boot-cities-service
   type: git
   source:
     uri: {{git-uri}}
