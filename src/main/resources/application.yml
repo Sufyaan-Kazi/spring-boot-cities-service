@@ -13,7 +13,7 @@ logging:
 
 spring:
   profiles:
-    active: oshift
+    active: local
 
 ---
 spring:
