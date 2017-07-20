@@ -42,22 +42,21 @@ jobs:
       password: {{OSHIFT_PASS}}
       APPNAME: {{APPNAME}}
 
-- name: prepSpace
+- name: createDB
   build_logs_to_retain: 5
   plan:
   - get: spring-boot-cities-service
     passed:
       - createProject
     trigger: true
-  - task: prepSpace
-    file: spring-boot-cities-service/ci/tasks/prepPCFSpace.yml
+  - task: createDB
+    file: spring-boot-cities-service/ci/tasks/createDB.yml
     params:
       uri: {{OSHIFT_URI}}
       project: {{APPNAME}}
       username: {{OSHIFT_USER}}
       password: {{OSHIFT_PASS}}
       APPNAME: {{APPNAME}}
-      SERVICE_NAME: {{SERVICE_NAME}}
 
 - name: packageNPush
   build_logs_to_retain: 5
@@ -65,7 +64,7 @@ jobs:
   - get: spring-boot-cities-service
     passed:
       - testSrc
-      - prepSpace
+      - createDB
     trigger: true
   - get: resource-version
     params:
