@@ -8,12 +8,14 @@ import java.util.LinkedHashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext;
+import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -25,14 +27,19 @@ import org.springframework.web.client.RestTemplate;
  * 
  * @author skazi
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SBootCitiesServiceApplication.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@SpringApplicationConfiguration(classes = SBootCitiesServiceApplication.class)
 //@WebAppConfiguration
-@WebIntegrationTest(randomPort = true)
+//@WebIntegrationTest(randomPort = true)
 public class TestRestAPICityRepository {
-	RestTemplate restTemplate = new TestRestTemplate();
+    @Autowired
+    private EmbeddedWebApplicationContext server;
 
-	@Value("${local.server.port}")
+	@Autowired
+	private TestRestTemplate restTemplate;
+
+    @LocalServerPort
 	int port;
 
 	private String url;
