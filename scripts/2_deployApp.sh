@@ -28,8 +28,17 @@ createS2I()
   fi
 }
 
+testSrc()
+{
+  cd ..
+  ./gradlew test
+  cd -
+}
+
 deployApp()
 {
+  testSrc
+
   echo_msg "Deploying $APPNAME from $gitproj"
   cat ${APP_ENV_FILE} ${MYSQL_ENV_FILE} | oc new-app s2i-java:latest\~${gitproj} -l name=${APPNAME} --env-file=-
   echo ""
