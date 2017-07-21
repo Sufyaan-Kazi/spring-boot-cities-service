@@ -43,7 +43,7 @@ addMYSQL()
       PLAN=mysql-ephemeral
     fi
 
-    oc process openshift//$PLAN --param-file=../src/main/resources/mysql.env -l name=${APPNAME} | oc create -f -
+    oc process openshift//$PLAN --param-file=${MYSQL_ENV_FILE} -l name=${APPNAME} | oc create -f -
     sleep 3
     echo ""
 

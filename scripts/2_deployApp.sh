@@ -19,7 +19,11 @@ createS2I()
     oc delete dc ${APPNAME}
     oc delete svc ${APPNAME}
     oc delete is ${APPNAME}
-    #oc delete routes ${APPNAME} ${APPVERSION}
+    ROUTE_EXIST=`oc get route ${APPVERSION} | wc -l | xargs`
+    if [ ${ROUTE_EXIST} -ne 0 ]
+    then
+      oc delete routes ${APPVERSION}
+    fi
     sleep 2
   fi
 }
@@ -27,7 +31,7 @@ createS2I()
 deployApp()
 {
   echo_msg "Deploying $APPNAME from $gitproj"
-  oc new-app s2i-java:latest\~${gitproj} -l name=${APPNAME} --env-file=../src/main/resources/mysql.env
+  cat ${APP_ENV_FILE} ${MYSQL_ENV_FILE} | oc new-app s2i-java:latest\~${gitproj} -l name=${APPNAME} --env-file=-
   echo ""
   oc logs -f bc/${APPNAME}
   echo_msg "Current Pods"

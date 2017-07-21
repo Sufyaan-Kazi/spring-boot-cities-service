@@ -4,6 +4,8 @@ password=dev
 CREATE_FRESH_PROJ=y
 APPNAME=spring-boot-cities-service
 APPVERSION=0.05
+MYSQL_ENV_FILE=../src/main/resources/oshift-mysql.env
+APP_ENV_FILE=../src/main/resources/oshift-app.env
 # format -> uri#branch
 gitproj=https://github.com/Sufyaan-Kazi/spring-boot-cities-service.git#openshift
 s2i=https://raw.githubusercontent.com/Sufyaan-Kazi/s2i-java/master/ose3/s2i-java-imagestream.json
