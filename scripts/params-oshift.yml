@@ -1,0 +1,5 @@
+uri=https://192.168.64.2:8443
+username=dev
+password=dev
+CREATE_FRESH_PROJ=y
+APPNAME=spring-boot-cities-service
