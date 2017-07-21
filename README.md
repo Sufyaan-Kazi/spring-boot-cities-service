@@ -18,11 +18,11 @@ https://twitter.com/Sufyaan_Kazi
 
 
 # spring-boot-cities-service
-This is a very simple Spring Boot app which presents data from a database in JSON at RESTful endpoints. The data is simple informatin concering UK cities - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data. You don't need you own database or web container, Spring Boot will provision them for you (H2 and Tomcat).
+This is a very simple Spring Boot app which presents data from a database in JSON at RESTful endpoints. The data is simple information concerning UK cities (or you can use your own data) - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data. You don't need your own database or web server, Spring Boot will provision them for you (H2 and Tomcat).
 
-When you first start the app, it loads sample data into the database using Flyway (see below).
+When you first start the app, it loads sample data into the database automatically using Flyway (see below).
 
-The app runs locally on a pc, but can also easily run on Cloud Foundry, Openshift or AWS. It can be deployed as a Docker container too. There are different branches for these different purposes.
+The app runs locally on a pc, but can also easily run on Cloud Foundry, Openshift or AWS, it uses Spring Boot profiles for this. It can be deployed as a Docker container too, there are different branches for these different purposes.
 
 To see how to package a war rather than a "fat" jar, look in the AppD branch.
 
