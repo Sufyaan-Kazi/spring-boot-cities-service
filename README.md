@@ -30,8 +30,20 @@ To see how to package a war rather than a "fat" jar, look in the AppD branch.
 
 Note: This is a FORK of https://github.com/cf-platform-eng/spring-boot-cities! Thanks to help and tips from my team, as well as Dave Syer and Scott Frederick in this and other branches :) The SCS branch includes updates to work with Spring Cloud Services.
 
+## How does the app connect to a database?
+Spring Boot automatically loads the correct database driver for you by examining the build.gradle. This apps' buil.gradle refers to both MySQL and H2 - Spring Boot decides which driver to load based on which Spring Boot profile is activated. The default profile will trigger H2, in which case Spring Boot automatically spins up an H2 instance as well as the driver.
+The app has multiple 'DataSourceConfig' classes within the src/......./config sub-folder and these have been annotated to tag them to a profile ```@Profile(....)```. 
+
+When you deploy the app to Cloud Foundry, Spring Boot activates CloudDataSourceConfig.java because it has been labelled as ```@Profile(cloud)```. This triggers Spring Cloud to automatically parse the config data within  Cloud Foundrys' container where your app executes and inject them into your app.
+
+If you launch the app in the OpenShift profile ```./gradlew bootRun -Dspring.profiles.active=oshift or java -D-Dspring.profiles.active=oshift -jar .....jar ``` it will trigger Spring Boot to load variables using OShiftDataSourceConfig instead. This class will bind variables such as username, password etc from the OpenShift container environment variables.
+
 ## Running the app locally
-You don't need to have a database running, this app will automatically spin up H2 in memory for you, because of Spring Boot. However, if you have one you want to use, such as MySQL, then a) comment/uncomment the relevant lines in build.gradle to get Spring Boot to automatically load the mySQL jdbc drivers and b) amend the application.yml file with url, username etc settings for your database. 
+You don't need to have a database running, this app will automatically spin up H2 in memory for you.
+
+However, if you have one you want to use such as MySQL, then trigger the right profile, e.g. ```./gradlew bootRun -Dspring.profiles.active=oshift or java -D-Dspring.profiles.active=oshift -jar .....jar ``` can be used if you are running the app on OpenShift. This will connect your application to an OpenShift MySQL instance by reading the connection data it needs from environment variables within the container - just make sure these variables exist and are populated.
+
+If you aren't in OpenShift, make a copy of OShiftDataSourceConfig and amend the line ```@Profile(...)``` to give it a different tag. Change the values within ```@Value(....)``` to match properties or env vars. For more info see here: https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
 
 To run outside of Eclipse just run 
 ```./gradlew bootRun ```
