@@ -16,7 +16,6 @@ https://twitter.com/Sufyaan_Kazi
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-
 # spring-boot-cities-service
 This is a very simple Spring Boot app which presents data from a database in JSON at RESTful endpoints. The data is simple information concerning UK cities (or you can use your own data) - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data. You don't need your own database or web server, Spring Boot will provision them for you (H2 and Tomcat).
 
@@ -43,7 +42,7 @@ You don't need to have a database running, this app will automatically spin up H
 
 However, if you have one you want to use such as MySQL, then trigger the right profile, e.g. ```./gradlew bootRun -Dspring.profiles.active=oshift or java -D-Dspring.profiles.active=oshift -jar .....jar ``` can be used if you are running the app on OpenShift. This will connect your application to an OpenShift MySQL instance by reading the connection data it needs from environment variables within the container - just make sure these variables exist and are populated.
 
-If you aren't in OpenShift, make a copy of OShiftDataSourceConfig and amend the line ```@Profile(...)``` to give it a different tag. Change the values within ```@Value(....)``` to match properties or env vars. For more info see here: https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html
+If you aren't in OpenShift, make a copy of OShiftDataSourceConfig and amend the line ```@Profile(...)``` to give it a different tag. Change the values within ```@Value(....)``` to match properties or env vars. For more info see here: https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html and https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-profiles.html
 
 To run outside of Eclipse just run 
 ```./gradlew bootRun ```
