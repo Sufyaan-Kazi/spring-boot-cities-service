@@ -1,12 +1,8 @@
 #!/bin/sh 
 . common.sh
 
-main()
+createS2I()
 {
-  # Login
-  oc version
-  oc_login
-
   IS_EXIST=`oc get is | grep s2i-java | wc -l | xargs`
   if [ $IS_EXIST -eq 0 ]
   then
@@ -23,9 +19,13 @@ main()
     oc delete dc ${APPNAME}
     oc delete svc ${APPNAME}
     oc delete is ${APPNAME}
+    #oc delete routes ${APPNAME} ${APPVERSION}
     sleep 2
   fi
+}
 
+deployApp()
+{
   echo_msg "Deploying $APPNAME from $gitproj"
   oc new-app s2i-java:latest\~${gitproj} -l name=${APPNAME} --env-file=../src/main/resources/mysql.env
   echo ""
@@ -40,7 +40,7 @@ main()
   STARTED=`oc logs dc/${APPNAME} | tail -n 1 | grep ": Started " | wc -l | xargs`
   while [ ${STARTED} -ne 1 ]
   do
-    oc get po -l name=spring-boot-cities-service
+    oc get po -l name=${APPNAME}
     sleep 3
     STARTED=`oc logs dc/${APPNAME} | tail -n 1 | grep ": Started " | wc -l | xargs`
   done
@@ -56,8 +56,20 @@ main()
   echo "......"
   oc logs dc/${APPNAME} | tail -n 2
   echo ""
+}
 
-  echo status
+main()
+{
+  # Login
+  oc version
+  oc_login
+
+  oc project ${APPNAME}
+  createS2I
+  deployApp
+
+  oc expose svc/${APPNAME} --name ${APPVERSION}
+  echo_msg "App available at: http://$(oc get routes | grep ${APPNAME} | xargs | cut -d ' ' -f 2)/"
 
   oc logout
 }
