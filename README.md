@@ -2,6 +2,7 @@ https://twitter.com/Sufyaan_Kazi
 
 - [spring-boot-cities-service](#spring-boot-cities-service)
   * [Running the app locally](#running-the-app-locally)
+  * [Running the app on Openshift](#running-the-app-on-openshift)
   * [Running the app on Cloud Foundry](#running-the-app-on-cloud-foundry)
   * [Running the app directly on AWS](#running-the-app-directly-on-aws)
   * [Usage!](#usage)
