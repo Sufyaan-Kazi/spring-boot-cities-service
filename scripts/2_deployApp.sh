@@ -41,6 +41,7 @@ deployApp()
 
   echo_msg "Deploying $APPNAME from $gitproj"
   cat ${APP_ENV_FILE} ${MYSQL_ENV_FILE} | oc new-app s2i-java:latest\~${gitproj} -l name=${APPNAME} --env-file=-
+  sleep 3
   echo ""
   oc logs -f bc/${APPNAME}
   echo_msg "Current Pods"
@@ -53,9 +54,11 @@ deployApp()
   STARTED=`oc logs dc/${APPNAME} | tail -n 1 | grep ": Started " | wc -l | xargs`
   while [ ${STARTED} -ne 1 ]
   do
-    oc get po -l name=${APPNAME}
     sleep 3
     STARTED=`oc logs dc/${APPNAME} | tail -n 1 | grep ": Started " | wc -l | xargs`
+    echo "......"
+    oc logs dc/${APPNAME} | tail -n 1
+    echo "......"
   done
   echo ""
 

@@ -1,4 +1,6 @@
-uri=https://192.168.64.2:8443
+# Minishift
+#uri=https://192.168.64.2:8443
+uri=https://ec2-34-249-219-198.eu-west-1.compute.amazonaws.com:8443
 username=dev
 password=dev
 CREATE_FRESH_PROJ=y
