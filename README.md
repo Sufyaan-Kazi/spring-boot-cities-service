@@ -18,7 +18,13 @@ https://twitter.com/Sufyaan_Kazi
 
 
 # spring-boot-cities-service
-This is a very simple Spring Boot project which demonstrates, that with only small a footprint of code its possible to a create a complex webservice which exposes CRUD operations as restful endpoints. It uses Spring Data (JPA) and spring web. This microservice runs on a local machine or on Cloud Foundry, OpenShift or AWS (or anywhere you can run a Spring Boot app). To see how to package a war rather than a "fat" jar, look in the AppD branch.
+This is a very simple Spring Boot app which presents data from a database as restul endpoints. The data is simple informatin concering UK cities - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data.
+
+When you first start the app, it loads sample data into the database using Flyway (see below).
+
+The app runs locally on a pc, but can also easily run on Cloud Foundry, Openshift or AWS. It can be deployed as a Docker container too. There are different branches for these different purposes.
+
+To see how to package a war rather than a "fat" jar, look in the AppD branch.
 
 ![Cities](/docs/Arch.png)
 
