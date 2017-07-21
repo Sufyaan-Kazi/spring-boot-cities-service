@@ -18,7 +18,7 @@ https://twitter.com/Sufyaan_Kazi
 
 
 # spring-boot-cities-service
-This is a very simple Spring Boot app which presents data from a database as restul endpoints. The data is simple informatin concering UK cities - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data.
+This is a very simple Spring Boot app which presents data from a database in JSON at RESTful endpoints. The data is simple informatin concering UK cities - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data.
 
 When you first start the app, it loads sample data into the database using Flyway (see below).
 
