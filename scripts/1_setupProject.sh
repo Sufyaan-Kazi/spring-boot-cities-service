@@ -80,7 +80,7 @@ main()
   oc_login
   createProj
   addMYSQL
-#  oc logout
+  oc logout
 }
 
 trap 'abort $LINENO' 0
