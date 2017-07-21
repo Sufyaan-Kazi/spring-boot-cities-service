@@ -2,6 +2,7 @@ https://twitter.com/Sufyaan_Kazi
 
 - [spring-boot-cities-service](#spring-boot-cities-service)
   * [Running the app locally](#running-the-app-locally)
+  * [Running the app on Openshift](#running-the-app-on-openshift)
   * [Running the app on Cloud Foundry](#running-the-app-on-cloud-foundry)
   * [Running the app directly on AWS](#running-the-app-directly-on-aws)
   * [Usage!](#usage)
@@ -17,7 +18,7 @@ https://twitter.com/Sufyaan_Kazi
 
 
 # spring-boot-cities-service
-This is a very simple Spring Boot project which demonstrates, that with only small a footprint of code its possible to a create a complex webservice which exposes CRUD operations as restful endpoints. It uses Spring Data (JPA) and spring web. This microservice runs on a local machine or on Cloud Foundry, or AWS (or anywhere you can run a Spring Boot app). To see how to package a war rather than a "fat" jar, look in the AppD branch.
+This is a very simple Spring Boot project which demonstrates, that with only small a footprint of code its possible to a create a complex webservice which exposes CRUD operations as restful endpoints. It uses Spring Data (JPA) and spring web. This microservice runs on a local machine or on Cloud Foundry, OpenShift or AWS (or anywhere you can run a Spring Boot app). To see how to package a war rather than a "fat" jar, look in the AppD branch.
 
 ![Cities](/docs/Arch.png)
 
@@ -29,6 +30,9 @@ You don't need to have a database running, this app will automatically spin up H
 To run outside of Eclipse just run 
 ```./gradlew bootRun ```
 on your command line. You don't need to have gradle installed.
+
+## Running the app on OpenShift
+To run this app on Minishift or OpenShift, execute the numbered scripts in the scripts sub-directory. The first one creates an empty project and the MySQL Service. The second one deploys an S2I which can build Spring Boot Apps, and then deploys the app, relevant environment variables to expose the MySQL credentials,  runs the app with the openshift profile and creates the route. The final script runs basic tests.
 
 ## Running the app on Cloud Foundry
 To run this on Cloud Foundry, simply run the script:
