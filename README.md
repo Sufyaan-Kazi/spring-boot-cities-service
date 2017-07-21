@@ -50,7 +50,15 @@ To run outside of Eclipse just run
 on your command line. You don't need to have gradle installed.
 
 ## Running the app on OpenShift
-To run this app on Minishift or OpenShift, execute the numbered scripts in the scripts sub-directory. The first one creates an empty project and the MySQL Service. The second one deploys an S2I which can build Spring Boot Apps, and then deploys the app, relevant environment variables to expose the MySQL credentials,  runs the app with the openshift profile and creates the route. The final script runs basic tests.
+To run this app on Minishift or OpenShift you need to make sure you have an S2I that can handle Spring Boot apps, e.g. https://github.com/jorgemoralespou/s2i-java. This creates an ImageStream that will launch your app as a fat jar.
+
+To make things simpler I have created some scripts within the 'scripts' sub-directory, numbered 1 through 3.
+
+Script 1 - Creates an empty project on OpenShift and creates a pod & deploymentconfig for MySQL
+Script 2 - Runs tests, performs a gradle build, imports the S2I imagestream into OpenShift, deploys the app and exposes a route\*
+Script 3 - Uses curl and Spring Boot Actuator to run some checks to make sure the app is functioning correctly
+
+\* To make sure Spring Boot does does not launch an H2 database and uses the OpenShift MySQL, we need the S2I to trigger the right Spring Boot profile on execution. Hence, I have forked the S2I above to be able to pass in the right JVM flags to select the profile: https://github.com/Sufyaan-Kazi/s2i-java.
 
 ## Running the app on Cloud Foundry
 To run this on Cloud Foundry, simply run the script:
