@@ -16,23 +16,48 @@ https://twitter.com/Sufyaan_Kazi
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-
 # spring-boot-cities-service
-This is a very simple Spring Boot project which demonstrates, that with only small a footprint of code its possible to a create a complex webservice which exposes CRUD operations as restful endpoints. It uses Spring Data (JPA) and spring web. This microservice runs on a local machine or on Cloud Foundry, OpenShift or AWS (or anywhere you can run a Spring Boot app). To see how to package a war rather than a "fat" jar, look in the AppD branch.
+This is a very simple Spring Boot app which presents data from a database in JSON at RESTful endpoints. The data is simple information concerning UK cities (or you can use your own data) - there is an accompanying Microservice in another project (see below) which presents a nice GUI for the data. You don't need your own database or web server, Spring Boot will provision them for you (H2 and Tomcat).
+
+When you first start the app, it loads sample data into the database automatically using Flyway (see below).
+
+The app runs locally on a pc, but can also easily run on Cloud Foundry, Openshift or AWS, it uses Spring Boot profiles for this. It can be deployed as a Docker container too, there are different branches for these different purposes.
+
+To see how to package a war rather than a "fat" jar, look in the AppD branch.
 
 ![Cities](/docs/Arch.png)
 
 Note: This is a FORK of https://github.com/cf-platform-eng/spring-boot-cities! Thanks to help and tips from my team, as well as Dave Syer and Scott Frederick in this and other branches :) The SCS branch includes updates to work with Spring Cloud Services.
 
+## How does the app connect to a database?
+Spring Boot automatically loads the correct database driver for you by examining the build.gradle. This apps' buil.gradle refers to both MySQL and H2 - Spring Boot decides which driver to load based on which Spring Boot profile is activated. The default profile will trigger H2, in which case Spring Boot automatically spins up an H2 instance as well as the driver.
+The app has multiple 'DataSourceConfig' classes within the src/......./config sub-folder and these have been annotated to tag them to a profile ```@Profile(....)```. 
+
+When you deploy the app to Cloud Foundry, Spring Boot activates CloudDataSourceConfig.java because it has been labelled as ```@Profile(cloud)```. This triggers Spring Cloud to automatically parse the config data within  Cloud Foundrys' container where your app executes and inject them into your app.
+
+If you launch the app in the OpenShift profile ```./gradlew bootRun -Dspring.profiles.active=oshift or java -D-Dspring.profiles.active=oshift -jar .....jar ``` it will trigger Spring Boot to load variables using OShiftDataSourceConfig instead. This class will bind variables such as username, password etc from the OpenShift container environment variables.
+
 ## Running the app locally
-You don't need to have a database running, this app will automatically spin up H2 in memory for you, because of Spring Boot. However, if you have one you want to use, such as MySQL, then a) comment/uncomment the relevant lines in build.gradle to get Spring Boot to automatically load the mySQL jdbc drivers and b) amend the application.yml file with url, username etc settings for your database. 
+You don't need to have a database running, this app will automatically spin up H2 in memory for you.
+
+However, if you have one you want to use such as MySQL, then trigger the right profile, e.g. ```./gradlew bootRun -Dspring.profiles.active=oshift or java -D-Dspring.profiles.active=oshift -jar .....jar ``` can be used if you are running the app on OpenShift. This will connect your application to an OpenShift MySQL instance by reading the connection data it needs from environment variables within the container - just make sure these variables exist and are populated.
+
+If you aren't in OpenShift, make a copy of OShiftDataSourceConfig and amend the line ```@Profile(...)``` to give it a different tag. Change the values within ```@Value(....)``` to match properties or env vars. For more info see here: https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html and https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-profiles.html
 
 To run outside of Eclipse just run 
 ```./gradlew bootRun ```
 on your command line. You don't need to have gradle installed.
 
 ## Running the app on OpenShift
-To run this app on Minishift or OpenShift, execute the numbered scripts in the scripts sub-directory. The first one creates an empty project and the MySQL Service. The second one deploys an S2I which can build Spring Boot Apps, and then deploys the app, relevant environment variables to expose the MySQL credentials,  runs the app with the openshift profile and creates the route. The final script runs basic tests.
+To run this app on Minishift or OpenShift you need to make sure you have an S2I that can handle Spring Boot apps, e.g. https://github.com/jorgemoralespou/s2i-java. This creates an ImageStream that will launch your app as a fat jar.
+
+To make things simpler I have created some scripts within the 'scripts' sub-directory, numbered 1 through 3.
+
+* Script 1 - Creates an empty project on OpenShift and creates a pod & deploymentconfig for MySQL
+* Script 2 - Runs tests, performs a gradle build, imports the S2I imagestream into OpenShift, deploys the app and exposes a route\*
+* Script 3 - Uses curl and Spring Boot Actuator to run some checks to make sure the app is functioning correctly
+
+\* To make sure Spring Boot does does not launch an H2 database and uses the OpenShift MySQL, we need the S2I to trigger the right Spring Boot profile on execution. Hence, I have forked the S2I above to be able to pass in the right JVM flags to select the profile: https://github.com/Sufyaan-Kazi/s2i-java.
 
 ## Running the app on Cloud Foundry
 To run this on Cloud Foundry, simply run the script:
