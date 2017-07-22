@@ -34,6 +34,8 @@ repositories {
     mavenCentral()
 }
 
+sourceSets.main.output.classesDir = new File(buildDir, "classes/main")
+
 allprojects { 
 	if (project.hasProperty('buildversion')) { 
 		project.version = project.buildversion 
