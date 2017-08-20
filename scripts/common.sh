@@ -40,7 +40,7 @@ exitIfNull()
 checkSpringBootApp()
 {
   echo_msg "Checking Spring Boot Actuator health endpoint: $1/health"
-  running=`curl -s $1/health | grep '"status" : "UP"'`
+  running=$(curl -s $1/health | grep '"status" : "UP"')
   curl -s $1/health
   echo ""
   exitIfNull $running
