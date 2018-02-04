@@ -37,12 +37,12 @@ repositories {
 
 sourceSets.main.output.classesDir = new File(buildDir, "classes/main")
 
-allprojects { 
-	if (project.hasProperty('buildversion')) { 
-		project.version = project.buildversion 
-	} else { 
-		project.version = '1.0'
-	} 
+allprojects {
+    if (project.hasProperty('buildversion')) {
+        project.version = project.buildversion
+    } else {
+        project.version = '1.0'
+    }
 }
 
 
