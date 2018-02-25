@@ -1,12 +1,9 @@
 ---
 applications:
 - name: cities-service
-  memory: 512M
   instances: 1
   random-route: true
   path: build/libs/cities-service-1.0.jar
   timeout: 160
   services:
    - MyDB
-env:
-    JAVA_OPTS: -Djava.security.egd=file:///dev/urandom

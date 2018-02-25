@@ -82,8 +82,6 @@ clean_cf()
     cf delete -f $app
   done
   cf_service_delete $DBSERVICE $APPNAME
-  echo_msg "Removing Orphaned Routes"
-  cf delete-orphaned-routes -f
 }
 
 main()
@@ -93,12 +91,13 @@ main()
   check_cli_installed
   build
   clean_cf
-  PLAN=`cf marketplace -s p-mysql | grep MB | head -n 1 | cut -d ' ' -f1 | xargs`
+  SERVICE=`cf marketplace | grep MySQL | head -n 1 | cut -d ' ' -f1 | xargs`
+  PLAN=`cf marketplace -s ${SERVICE} | grep free | tail -n 1 | cut -d ' ' -f1 | xargs`
   if [ -z $PLAN ]
   then
-    PLAN=`cf marketplace -s p-mysql | grep MySQL | head -n 1 | cut -d ' ' -f1 | xargs`
+    PLAN=`cf marketplace | grep MySQL | head -n 1 | cut -d ' ' -f1 | xargs`
   fi
-  cf create-service p-mysql $PLAN MyDB
+  cf create-service $SERVICE $PLAN MyDB
   echo "About to push application, you can monitor this using the command: cf logs $APPNAME"
   BPACK=`cf buildpacks | grep java | grep true | head -n 1 | cut -d ' ' -f1 | xargs`
   cf push -b $BPACK
