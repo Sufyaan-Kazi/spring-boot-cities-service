@@ -49,7 +49,6 @@ main()
   DBSERVICE=MyDB
   check_cli_installed
   build
-  ./cleanup.sh
 
   echo_msg "Starting Deploy!"
   SERVICE=`cf marketplace | grep MySQL | head -n 1 | cut -d ' ' -f1 | xargs`
