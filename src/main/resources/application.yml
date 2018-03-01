@@ -10,3 +10,9 @@ logging:
         springframework:
            web: WARN
            cloud: WARN
+
+---
+spring:
+  profiles: gcp
+  datasource:
+    type: com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource
