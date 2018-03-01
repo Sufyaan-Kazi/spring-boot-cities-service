@@ -35,7 +35,7 @@ resources:
           MYSQL_DATABASE=citiesdb
           MYSQL_USER=root
           MYSQL_PASSWORD=citiesdb
-          ./cloud_sql_proxy -instances=${DATABASE_INSTANCE_CONNECTION}
+          ./cloud_sql_proxy -instances=${DATABASE_INSTANCE_CONNECTION}=tcp:3306 -credential_file=springboot-cities-f434bc9238bb.json &
           sudo apt-get -y install default-jdk
           sudo apt-get -y install git-core
           git clone -b gcp https://github.com/Sufyaan-Kazi/spring-boot-cities-service.git
