@@ -1,0 +1,12 @@
+resources:
+- name: http-web
+  direction: INGRESS
+  network: global/networks/custom-network
+  sourceRanges:
+    - 0.0.0.0/0
+  allowed:
+    - IPProtocol: tcp
+      ports:
+      - '8081'
+  targetTags:
+    - web
