@@ -1,7 +1,7 @@
 https://twitter.com/Sufyaan_Kazi
 
 - [spring-boot-cities-service](#spring-boot-cities-service)
-  * [Running the app locally](#running-the-app-locally)
+  * [Running the app locally or connecting directly to a db](#running-the-app-locally-or-connecting-directly-to-a-database)
   * [Running the app on Cloud Foundry](#running-the-app-on-cloud-foundry)
   * [Running the app directly on AWS](#running-the-app-directly-on-aws)
   * [Usage!](#usage)
@@ -23,7 +23,7 @@ This is a very simple Spring Boot project which demonstrates, that with only sma
 
 Note: This is a FORK of https://github.com/cf-platform-eng/spring-boot-cities! Thanks to help and tips from my team, as well as Dave Syer and Scott Frederick in this and other branches :) The SCS branch includes updates to work with Spring Cloud Services.
 
-## Running the app locally
+## Running the app locally or connecting directly to a database
 You don't need to have a database running, this app will automatically spin up H2 in memory for you, because of Spring Boot. However, if you have one you want to use, such as MySQL, then a) comment/uncomment the relevant lines in build.gradle to get Spring Boot to automatically load the mySQL jdbc drivers and b) amend the application.yml file with url, username etc settings for your database. 
 
 To run outside of Eclipse just run 
