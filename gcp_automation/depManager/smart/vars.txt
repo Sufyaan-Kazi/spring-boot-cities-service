@@ -1,3 +1,3 @@
 BUCKET_NAME=suf-spring-boot-cities
-SERVICE_ZONE=europe-west2-b
-UI_ZONE=europe-west3-b
+SERVICE_REGION=europe-west2
+UI_REGION=europe-west3

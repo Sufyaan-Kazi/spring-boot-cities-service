@@ -4,9 +4,9 @@ resources:
   properties:
     autoscalingPolicy:
       coolDownPeriodSec: 60
-      cpuUtilization:
-        utilizationTarget: 0.6
+      loadBalancingUtilization:
+        utilizationTarget: 0.8
       maxNumReplicas: 10
       minNumReplicas: 2
-    region: europe-west2
-    target: regions/europe-west2/instanceGroupManagers/cities-service-ig
+    region: REGION
+    target: https://www.googleapis.com/compute/v1/projects/springboot-cities/regions/REGION/instanceGroupManagers/cities-service-ig
