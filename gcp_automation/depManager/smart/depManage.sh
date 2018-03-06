@@ -12,7 +12,12 @@ gsutil cp -r startup-scripts/* gs://${BUCKET_NAME}/startup-scripts/
 gsutil ls -al gs://${BUCKET_NAME}/
 
 echo "Creating Instances"
-gcloud deployment-manager deployments create cities-instances --config instances.yml --async
+gcloud deployment-manager deployments create cities-instances-templates --config instance-templates.yml
+
+
+
+
+gcloud deployment-manager deployments create cities-instances --config instances.yml
 #gcloud compute instances tail-serial-port-output cities-service
 echo "Sleeping while instance initialises, monitor output using console or: gcloud compute instances tail-serial-port-output cities-service"
 sleep 120
