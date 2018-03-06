@@ -15,11 +15,11 @@ resources:
         initializeParams:
           sourceImage: projects/debian-cloud/global/images/family/debian-9
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
       - network: global/networks/custom-network
         subnetwork: regions/europe-west2/subnetworks/subnet2
+        accessConfigs:
+          - name: external-nat
+            type: ONE_TO_ONE_NAT
       metadata:
         items:
         - key: serial-port-enable
@@ -48,9 +48,9 @@ resources:
       networkInterfaces:
       - network: global/networks/custom-network
         subnetwork: regions/europe-west3/subnetworks/subnet3
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+        accessConfigs:
+          - name: external-nat
+            type: ONE_TO_ONE_NAT
       metadata:
         items:
         - key: serial-port-enable
@@ -61,14 +61,3 @@ resources:
         - email: default
           scopes:
           - https://www.googleapis.com/auth/devstorage.read_only
-- name: cities-service-hc
-  type: compute.v1.httpHealthCheck
-  properties:
-    host: ''
-    port: 8080
-    proxyHeader: NONE
-    requestPath: /cities
-    checkIntervalSec: 10
-    timeoutSec: 10
-    healthyThreshold: 3
-    unhealthyThreshold: 3

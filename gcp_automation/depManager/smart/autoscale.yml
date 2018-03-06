@@ -1,0 +1,12 @@
+resources:
+- name: cities-service-as
+  type: compute.v1.regionAutoscalers
+  properties:
+    autoscalingPolicy:
+      coolDownPeriodSec: 60
+      cpuUtilization:
+        utilizationTarget: 0.6
+      maxNumReplicas: 10
+      minNumReplicas: 2
+    region: europe-west2
+    target: regions/europe-west2/instanceGroupManagers/cities-service-ig
