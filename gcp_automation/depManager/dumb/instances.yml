@@ -24,15 +24,12 @@ resources:
       items:
       - key: serial-port-enable
         value: '1'
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo apt-get update
-          sudo apt-get -y install default-jdk
-          sudo apt-get -y install git-core
-          git clone https://github.com/Sufyaan-Kazi/spring-boot-cities-service.git
-          cd spring-boot-cities-service/
-          ./gradlew bootRun
+      - key: startup-script-url
+        value: gs://suf-spring-boot-cities/startup-scripts/cities-service.sh
+    serviceAccounts:
+      - email: default
+        scopes:
+        - https://www.googleapis.com/auth/devstorage.read_only
 - name: cities-ui
   type: compute.v1.instance
   properties:
@@ -58,13 +55,9 @@ resources:
       items:
       - key: serial-port-enable
         value: '1'
-      - key: startup-script
-        value: |
-          #!/bin/bash
-          sudo apt-get update
-          sudo apt-get -y install default-jdk
-          sudo apt-get -y install git-core
-          git clone https://github.com/Sufyaan-Kazi/spring-boot-cities-ui.git
-          cd spring-boot-cities-ui/
-          export SPRING_CITIES_WS_URL=http://cities-service:8080/cities
-          ./gradlew bootRun
+      - key: startup-script-url
+        value: gs://suf-spring-boot-cities/startup-scripts/cities-ui.sh
+    serviceAccounts:
+      - email: default
+        scopes:
+        - https://www.googleapis.com/auth/devstorage.read_only

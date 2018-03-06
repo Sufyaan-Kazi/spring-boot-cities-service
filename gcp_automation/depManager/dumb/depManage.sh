@@ -1,5 +1,6 @@
 #!/bin/bash 
 
+. ./vars.txt
 . ./cleanup.sh
 
 gcloud deployment-manager deployments create cities-instances --config instances.yml
