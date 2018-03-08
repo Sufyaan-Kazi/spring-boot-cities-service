@@ -1,0 +1,16 @@
+resources:
+- name: cities-service-int-lb
+  type: compute.v1.backendService
+  properties:
+    backends:
+    - balancingMode: CONNECTION
+      group: cities-service-ig
+    connectionDraining:
+      drainingTimeoutSec: 0
+    healthChecks:
+    - global/healthChecks/cities-service-hc-lb
+    loadBalancingScheme: INTERNAL
+    protocol: TCP
+    region: europe-west2
+    sessionAffinity: NONE
+    timeoutSec: 30

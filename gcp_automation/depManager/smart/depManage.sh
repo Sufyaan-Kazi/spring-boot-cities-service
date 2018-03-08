@@ -32,10 +32,14 @@ gcloud deployment-manager deployments create cities-service-as --config=autoscal
 rm -f autoscale_temp.yml
 
 echo "Linking HealthCheck to the Instance Group"
-gcloud deployment-manager deployments create cities-service-hc --config=healthcheck.yml
+gcloud deployment-manager deployments create cities-service-hc --config=healthchecks.yml
 gcloud beta compute instance-groups managed set-autohealing cities-service-ig --http-health-check=cities-service-hc --initial-delay=90 --region=europe-west2
 
-echo "Creating Firewall Rules"
+echo "Creating Internal Backend Service and internal load balancer"
+gcloud deployment-manager deployments create cities-service-int-lb --config=lb.yml
+gcloud compute backend-services add-backend cities-service-int-lb --instance-group=cities-service-ig --instance-group-region=${SERVICE_REGION} --region=${SERVICE_REGION}
+
+echo "Creating External HTTP Firewall Rules"
 gcloud deployment-manager deployments create cities-firewall --config firewall-rules.yml
 
 echo "Launching Browser"
