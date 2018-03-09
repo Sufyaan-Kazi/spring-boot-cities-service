@@ -3,7 +3,7 @@ resources:
   type: compute.v1.instance
   properties:
     zone: europe-west2-b
-    machineType: zones/europe-west3-b/machineTypes/g1-small
+    machineType: zones/europe-west2-b/machineTypes/g1-small
     disks:
     - deviceName: boot
       type: PERSISTENT
@@ -13,7 +13,7 @@ resources:
         sourceImage: projects/debian-cloud/global/images/family/debian-9
     networkInterfaces:
     - network: global/networks/custom-network
-      subnetwork: regions/europe-west3/subnetworks/subnet3
+      subnetwork: regions/europe-west2/subnetworks/subnet2
       accessConfigs:
           - name: external-nat
             type: ONE_TO_ONE_NAT
