@@ -65,11 +65,11 @@ gcloud beta compute instance-groups managed set-autohealing cities-service-ig --
 # Define Internal Load Balancer
 #
 #
-echo_mesg "Creating Internal Backend Service and internal load balancer"
+echo_mesg "Creating Internal load balancer"
 gcloud deployment-manager deployments create cities-service-int-lb --config=lb.yml
-echo_mesg "Defining Backend service to ILB"
+echo_mesg "Defining Backend service for Internal Load Balancer"
 gcloud compute backend-services add-backend cities-service-int-lb --instance-group=cities-service-ig --instance-group-region=${SERVICE_REGION} --region=${SERVICE_REGION}
-echo_mesg "Defining Forwarding Rule for ILB"
+echo_mesg "Defining Forwarding Rule for Internal Load Balancer"
 gcloud deployment-manager deployments create cities-service-fwd-rule --config=fwd-rules.yml
 
 #
