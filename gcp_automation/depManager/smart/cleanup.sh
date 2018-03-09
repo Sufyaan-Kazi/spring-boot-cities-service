@@ -15,6 +15,7 @@ then
   gcloud deployment-manager deployments delete -q cities-service-ig
   gcloud deployment-manager deployments delete -q cities-service-hc
   gcloud deployment-manager deployments delete -q cities-service-it
+  gcloud deployment-manager deployments delete -q cities-instances
   gcloud deployment-manager deployments delete -q cities-firewall
   gcloud deployment-manager deployments list
 fi

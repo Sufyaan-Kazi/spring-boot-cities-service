@@ -36,7 +36,6 @@ gcloud compute instance-groups managed list-instances cities-service-ig --region
 gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION}
 INST=`gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION} | tail -n 1 | cut -d ' ' -f1 | xargs`
 SERVICE_ZONE=`gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION} | tail -n 1 | xargs | cut -d ' ' -f2 | xargs`
-echo_mesg $INST $SERVICE_ZONE
 echo_mesg "Sleeping while instance initialises"
 sleep 120
 gcloud compute instances get-serial-port-output ${INST} --zone=${SERVICE_ZONE}
