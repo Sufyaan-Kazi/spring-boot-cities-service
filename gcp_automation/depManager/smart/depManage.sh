@@ -14,7 +14,7 @@ echo ""
 #
 echo_mesg "Creating Bucket"
 gsutil mb gs://${BUCKET_NAME}/
-gsutil cp -r startup-scripts/* gs://${BUCKET_NAME}/startup-scripts/
+gsutil cp -r startup-scripts/cities-service.sh gs://${BUCKET_NAME}/startup-scripts/cities-service.sh
 gsutil ls -al gs://${BUCKET_NAME}/
 
 #
@@ -72,6 +72,21 @@ gcloud compute backend-services add-backend cities-service-int-lb --instance-gro
 echo_mesg "Defining Forwarding Rule for Internal Load Balancer"
 gcloud deployment-manager deployments create cities-service-fwd-rule --config=fwd-rules.yml
 
+echo "Waiting for IP of forwarding rule"
+FWD_IP=`gcloud compute forwarding-rules list | grep cities-service | xargs | cut -d ' ' -f 3`
+while [ -z $FWD_IP ]
+do
+  sleep 60
+  FWD_LIST=`gcloud compute forwarding-rules list`
+  echo $FWD_LIST
+  FWD_IP=`gcloud compute forwarding-rules list | grep cities-service | xargs | cut -d ' ' -f 3`
+done
+echo "IP of Internal Load Balancer is: $FWD_IP"
+TEMP_FILE=cities_ui_$$.sh
+cat startup-scripts/cities-ui.sh | sed s/LB_IP/$FWD_IP/g > startup-scripts/${TEMP_FILE}
+gsutil cp -r startup-scripts/$TEMP_FILE gs://${BUCKET_NAME}/startup-scripts/cities-ui.sh
+rm -f startup-scripts/${TEMP_FILE}
+
 #
 #
 # Create cities-ui
@@ -83,7 +98,6 @@ SERVICE_ZONE=`gcloud compute instances list | grep cities-ui | xargs | cut -d ' 
 echo_mesg "Sleeping while instance initialises"
 sleep 120
 gcloud compute instances get-serial-port-output cities-ui --zone=${SERVICE_ZONE}
-
 
 #
 #

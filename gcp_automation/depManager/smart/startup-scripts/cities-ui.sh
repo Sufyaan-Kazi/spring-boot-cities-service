@@ -8,7 +8,7 @@ if [ ! -d "$DIR" ]; then
   git clone https://github.com/Sufyaan-Kazi/spring-boot-cities-ui.git
 fi
 cd $DIR
-export SPRING_CITIES_WS_URL=http://192.168.5.5:8080/cities
+export SPRING_CITIES_WS_URL=http://LB_IP:8080/cities
 echo "****************** Connecting to cities-service: ${SPRING_CITIES_WS_URL} *********************"
 sleep 5
 nohup ./gradlew bootRun
