@@ -1,0 +1,12 @@
+resources:
+- name: cities-service-fwd-rule
+  type: compute.v1.forwardingRules
+  properties:
+    IPProtocol: TCP
+    backendService: https://www.googleapis.com/compute/v1/projects/springboot-cities/regions/europe-west2/backendServices/cities-service-int-lb
+    loadBalancingScheme: INTERNAL
+    network: global/networks/custom-network
+    ports:
+    - '8080'
+    region: europe-west2
+    subnetwork: regions/europe-west2/subnetworks/subnet2
