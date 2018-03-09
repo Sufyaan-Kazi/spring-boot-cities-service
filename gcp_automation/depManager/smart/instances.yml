@@ -2,7 +2,7 @@ resources:
 - name: cities-ui
   type: compute.v1.instance
   properties:
-    zone: europe-west3-b
+    zone: europe-west2-b
     machineType: zones/europe-west3-b/machineTypes/g1-small
     disks:
     - deviceName: boot
