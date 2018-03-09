@@ -46,8 +46,8 @@ gcloud compute instances get-serial-port-output ${INST} --zone=${SERVICE_ZONE}
 #
 #
 echo_mesg "Setting up Autoscale"
-cat autoscale.yml | sed s/REGION/europe-west2/g > autoscale_temp.yml
-gcloud deployment-manager deployments create cities-service-as --config=autoscale_temp.yml
+cat autoscale.yml | sed s/REGION/europe-west2/g > autoscale_temp_$$.yml
+gcloud deployment-manager deployments create cities-service-as --config=autoscale_temp_$$.yml
 rm -f autoscale_temp.yml
 
 #
