@@ -41,7 +41,7 @@ gcloud deployment-manager deployments create cities-instances --config instances
 waitForInstanceToStart cities-ui
 # Wait for App to start
 echo "Waiting for app to start ... "
-sleep 90
+sleep 120
 #getInstanceOutput cities-ui
 
 ######### Creating External Firewall Rules for App
