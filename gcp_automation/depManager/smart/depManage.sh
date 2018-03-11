@@ -39,12 +39,17 @@ rm -f startup-scripts/${TEMP_FILE}
 echo_mesg "Creating cities-ui"
 gcloud deployment-manager deployments create cities-instances --config instances.yml 
 waitForInstanceToStart cities-ui
+# Wait for App to start
+echo "Waiting for app to start ... "
+sleep 90
 #getInstanceOutput cities-ui
 
 ######### Creating External Firewall Rules for App
 echo_mesg "Creating External HTTP Firewall Rules"
 gcloud deployment-manager deployments create cities-firewall --config firewall-rules.yml
-sleep 5
+echo "Waiting for firewall rule to take effect ...."
+gcloud compute firewall-rules list | grep 8081
+sleep 10
 
 ######### Launching Browser
 echo_mesg "Launching Browser"

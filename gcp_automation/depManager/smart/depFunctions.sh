@@ -29,11 +29,9 @@ waitForInstanceToStart(){
   while [[ "$STATUS" != "RUNNING" ]]
   do
     echo "Sleeping while instance starts ...."
-    sleep 60
+    sleep 10
     STATUS=`gcloud compute instances describe $INSTANCE_NAME --zone=${ZONE} | grep "status:" | cut -d ' ' -f2`
   done
-  # Let the app start up
-  sleep 90
 }
 
 getInstanceOutput() {
@@ -63,8 +61,8 @@ createRegionalInstanceGroup() {
   # Creating Healthcheck for Instance Group
   echo_mesg "Linking HealthCheck to the Instance Group"
   gcloud deployment-manager deployments create ${INSTANCEG}-hc --config=$5
-  HC=`gcloud compute http-health-checks list | grep cities-service | xargs | cut -d ' ' -f1`
-  gcloud beta compute instance-groups managed set-autohealing ${INSTANCEG} --http-health-check=${HC} --initial-delay=90 --region=$REGION
+  #HC=`gcloud compute http-health-checks list | grep cities-service | xargs | cut -d ' ' -f1`
+  #gcloud beta compute instance-groups managed set-autohealing ${INSTANCEG} --http-health-check=${HC} --initial-delay=90 --region=$REGION
 
   #INSTANCE_NAME=`gcloud compute instances list | grep $INSTANCEG | cut -d ' ' -f1 | head -n 1`
   #waitForInstanceToStart $INSTANCE_NAME
