@@ -20,11 +20,11 @@ if [ $COUNT -ne 0 ]
 then
   DEPS=`gcloud deployment-manager deployments list`
 
-  deleteDeployment cities-service-fwd-rule
+  deleteDeployment cities-service-ig-fwd-rule
   deleteDeployment cities-service-int-lb
-  deleteDeployment cities-service-as
+  deleteDeployment cities-service-ig-as
   deleteDeployment cities-service-ig
-  deleteDeployment cities-service-hc
+  deleteDeployment cities-service-ig-hc
   deleteDeployment cities-service-it
   deleteDeployment cities-instances
   deleteDeployment cities-firewall

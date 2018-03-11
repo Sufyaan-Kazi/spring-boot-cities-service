@@ -10,7 +10,7 @@ resources:
     timeoutSec: 10
     healthyThreshold: 3
     unhealthyThreshold: 3
-- name: citiese-service-hc-lb
+- name: cities-service-hc-lb
   type: compute.v1.healthCheck
   properties:
     checkIntervalSec: 5

@@ -1,117 +1,51 @@
 #!/bin/bash 
 
 . ./vars.txt
-. ./common.sh
+. ./depFunctions.sh
 . ./cleanup.sh
 
 echo "****** Deploying Apps *****"
 echo ""
 
-#
-#
-# Create Bucket
-#
-#
+######### Create Bucket
 echo_mesg "Creating Bucket"
 gsutil mb gs://${BUCKET_NAME}/
 gsutil cp -r startup-scripts/cities-service.sh gs://${BUCKET_NAME}/startup-scripts/cities-service.sh
 gsutil ls -al gs://${BUCKET_NAME}/
 
-#
-#
-# Create Instance Templates
-#
-#
-echo_mesg "Creating Instance Templates"
-gcloud deployment-manager deployments create cities-service-it --config instance-template.yml
+######### Create Instance Templates
+createInstanceTemplate cities-service-it instance-template.yml
 
-#
-#
-# Create Instance Groups for cities service
-#
-#
-echo_mesg "Creating Instance Groups for cities_service"
-gcloud deployment-manager deployments create cities-service-ig --config instance-group.yml
-gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION}
-gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION}
-INST=`gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION} | tail -n 1 | cut -d ' ' -f1 | xargs`
-SERVICE_ZONE=`gcloud compute instance-groups managed list-instances cities-service-ig --region=${SERVICE_REGION} | tail -n 1 | xargs | cut -d ' ' -f2 | xargs`
-echo_mesg "Sleeping while instance initialises"
-sleep 120
-gcloud compute instances get-serial-port-output ${INST} --zone=${SERVICE_ZONE}
-
-#
-#
-# Define Autoscaling for Instance Group
-#
-#
-echo_mesg "Setting up Autoscale"
+######### Create Instance Groups for cities service
 TEMP_FILE=autoscale_temp_$$.yml
-cat autoscale.yml | sed s/REGION/europe-west2/g > ${TEMP_FILE}
-gcloud deployment-manager deployments create cities-service-as --config=${TEMP_FILE}
+cat autoscale.yml | sed s/REGION/$SERVICE_REGION/g > ${TEMP_FILE}
+createRegionalInstanceGroup cities-service-ig ${SERVICE_REGION} instance-group.yml  ${TEMP_FILE} healthchecks.yml
+INST=`gcloud compute instances list | grep cities-service-ig | grep RUNNING | head -n 1`
+#getInstanceOutput $INST ${SERVICE_REGION}
 rm -f ${TEMP_FILE}
 
-#
-#
-# Creating Healthcheck for Instance Group
-#
-#
-echo_mesg "Linking HealthCheck to the Instance Group"
-gcloud deployment-manager deployments create cities-service-hc --config=healthchecks.yml
-gcloud beta compute instance-groups managed set-autohealing cities-service-ig --http-health-check=cities-service-hc --initial-delay=90 --region=europe-west2
+######### Define Internal Load Balancer
+createIntLB cities-service-int-lb lb.yml cities-service-ig ${SERVICE_REGION} fwd-rules.yml
 
-#
-#
-# Define Internal Load Balancer
-#
-#
-echo_mesg "Creating Internal load balancer"
-gcloud deployment-manager deployments create cities-service-int-lb --config=lb.yml
-echo_mesg "Defining Backend service for Internal Load Balancer"
-gcloud compute backend-services add-backend cities-service-int-lb --instance-group=cities-service-ig --instance-group-region=${SERVICE_REGION} --region=${SERVICE_REGION}
-echo_mesg "Defining Forwarding Rule for Internal Load Balancer"
-gcloud deployment-manager deployments create cities-service-fwd-rule --config=fwd-rules.yml
-
-echo "Waiting for IP of forwarding rule"
+######### Amend startup for cities-ui
+echo_mesg "Storing IP of Internal Load Balancer in the instance template for web layer"
 FWD_IP=`gcloud compute forwarding-rules list | grep cities-service | xargs | cut -d ' ' -f 3`
-while [ -z $FWD_IP ]
-do
-  sleep 60
-  FWD_LIST=`gcloud compute forwarding-rules list`
-  echo $FWD_LIST
-  FWD_IP=`gcloud compute forwarding-rules list | grep cities-service | xargs | cut -d ' ' -f 3`
-done
-echo "IP of Internal Load Balancer is: $FWD_IP"
 TEMP_FILE=cities_ui_$$.sh
 cat startup-scripts/cities-ui.sh | sed s/LB_IP/$FWD_IP/g > startup-scripts/${TEMP_FILE}
 gsutil cp -r startup-scripts/$TEMP_FILE gs://${BUCKET_NAME}/startup-scripts/cities-ui.sh
 rm -f startup-scripts/${TEMP_FILE}
 
-#
-#
-# Create cities-ui
-#
-#
-echo "Creating cities-ui"
+######### Create cities-ui
+echo_mesg "Creating cities-ui"
 gcloud deployment-manager deployments create cities-instances --config instances.yml 
-SERVICE_ZONE=`gcloud compute instances list | grep cities-ui | xargs | cut -d ' ' -f2`
-echo_mesg "Sleeping while instance initialises"
-sleep 120
-gcloud compute instances get-serial-port-output cities-ui --zone=${SERVICE_ZONE}
+waitForInstanceToStart cities-ui
+#getInstanceOutput cities-ui
 
-#
-#
-# Creating External Firewall Rules for App
-#
-#
+######### Creating External Firewall Rules for App
 echo_mesg "Creating External HTTP Firewall Rules"
 gcloud deployment-manager deployments create cities-firewall --config firewall-rules.yml
 
-#
-#
-# Launching Browser
-#
-#
+######### Launching Browser
 echo_mesg "Launching Browser"
 URL=`gcloud compute instances list | grep cities-ui | xargs | cut -d ' ' -f 5 `
 open http://${URL}:8081/

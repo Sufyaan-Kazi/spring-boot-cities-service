@@ -30,6 +30,7 @@ resources:
         - email: default
           scopes:
           - https://www.googleapis.com/auth/devstorage.read_only
+          - https://www.googleapis.com/auth/service.management.readonly
 - name: cities-ui-template
   type: compute.v1.instanceTemplate
   properties:
@@ -61,3 +62,4 @@ resources:
         - email: default
           scopes:
           - https://www.googleapis.com/auth/devstorage.read_only
+          - https://www.googleapis.com/auth/service.management.readonly
