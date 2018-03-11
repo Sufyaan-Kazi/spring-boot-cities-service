@@ -55,9 +55,6 @@ createRegionalInstanceGroup() {
 
   echo_mesg "Creating Instance Group: $1 "
   gcloud deployment-manager deployments create $1 --config $3
-  sleep 2
-  INSTANCE_NAME=`gcloud compute instances list | grep $INSTANCEG | cut -d ' ' -f1 | head -n 1`
-  waitForInstanceToStart $INSTANCE_NAME
 
   # Define Autoscaling for Instance Group
   echo_mesg "Setting up Autoscale"
@@ -68,6 +65,9 @@ createRegionalInstanceGroup() {
   gcloud deployment-manager deployments create ${INSTANCEG}-hc --config=$5
   HC=`gcloud compute http-health-checks list | grep cities-service | xargs | cut -d ' ' -f1`
   gcloud beta compute instance-groups managed set-autohealing ${INSTANCEG} --http-health-check=${HC} --initial-delay=90 --region=$REGION
+
+  #INSTANCE_NAME=`gcloud compute instances list | grep $INSTANCEG | cut -d ' ' -f1 | head -n 1`
+  #waitForInstanceToStart $INSTANCE_NAME
 }
 
 # Define Internal Load Balancer
@@ -90,7 +90,7 @@ createIntLB() {
   while [ -z $FWD_IP ]
   do
     echo "Waiting for IP of forwarding rule"
-    sleep 60
+    sleep 10
     FWD_LIST=`gcloud compute forwarding-rules list | grep $NAME | wc -l`
     if [ $FWD_LIST -eq 1 ]
     then
@@ -98,5 +98,8 @@ createIntLB() {
     fi
   done
   echo "IP of Internal Load Balancer is: $FWD_IP"
+
+  INSTANCE_NAME=`gcloud compute instances list | grep $3 | cut -d ' ' -f1 | head -n 1`
+  waitForInstanceToStart $INSTANCE_NAME
 }
 

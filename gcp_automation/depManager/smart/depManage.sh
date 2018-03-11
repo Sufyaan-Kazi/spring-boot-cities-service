@@ -44,6 +44,7 @@ waitForInstanceToStart cities-ui
 ######### Creating External Firewall Rules for App
 echo_mesg "Creating External HTTP Firewall Rules"
 gcloud deployment-manager deployments create cities-firewall --config firewall-rules.yml
+sleep 5
 
 ######### Launching Browser
 echo_mesg "Launching Browser"
