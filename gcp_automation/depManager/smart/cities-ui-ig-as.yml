@@ -1,5 +1,5 @@
 resources:
-- name: cities-ui-as
+- name: cities-ui-ig-as
   type: compute.v1.regionAutoscalers
   properties:
     autoscalingPolicy:

@@ -1,0 +1,14 @@
+resources:
+- name: cities-service-http
+  type: compute.v1.firewall
+  properties:
+    direction: INGRESS
+    network: global/networks/custom-network
+    sourceTags:
+      - cities-ui
+    allowed:
+      - IPProtocol: tcp
+        ports:
+        - '8080'
+    targetTags:
+      - cities-service

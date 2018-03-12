@@ -37,11 +37,12 @@ deleteCitiesService() {
   then
     DEPS=`gcloud deployment-manager deployments list`
 
-    deleteDeployment cities-service-ig-fwd-rule
-    deleteDeployment cities-service-int-lb
+    deleteDeploymentAsync cities-service-fw
+    deleteDeployment cities-service-lb-fwd-rule
+    deleteDeployment cities-service-lb
     deleteDeployment cities-service-ig-as
     deleteDeployment cities-service-ig
-    deleteDeploymentAsync cities-service-ig-hc
+    deleteDeploymentAsync cities-service-lb-hc
     deleteDeployment cities-service-it
     gcloud deployment-manager deployments list
   fi
@@ -53,12 +54,17 @@ deleteCitiesUI() {
   then
     DEPS=`gcloud deployment-manager deployments list`
 
-    deleteDeploymentAsync cities-firewall
-    deleteDeploymentAsync cities-instances
+    deleteDeploymentAsync cities-ui-fw
     deleteDeployment cities-ui-ig-as
+    deleteDeployment cities-ui-fe
+    deleteDeployment cities-ui-web-proxy
+    deleteDeployment cities-ui-url-map
+    deleteDeployment cities-ui-be
     deleteDeployment cities-ui-ig
-    deleteDeploymentAsync cities-ui-ig-hc
+    deleteDeploymentAsync cities-ui-hc
+    deleteDeploymentAsync cities-ui-it
     gcloud deployment-manager deployments list
+
   fi
 }
 

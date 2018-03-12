@@ -1,9 +1,9 @@
 resources:
-- name: cities-service-fwd-rule
+- name: cities-service-lb-fwd-rule
   type: compute.v1.forwardingRules
   properties:
     IPProtocol: TCP
-    backendService: https://www.googleapis.com/compute/v1/projects/springboot-cities/regions/europe-west2/backendServices/cities-service-int-lb
+    backendService: https://www.googleapis.com/compute/v1/projects/springboot-cities/regions/europe-west2/backendServices/cities-service-lb
     loadBalancingScheme: INTERNAL
     network: global/networks/custom-network
     ports:

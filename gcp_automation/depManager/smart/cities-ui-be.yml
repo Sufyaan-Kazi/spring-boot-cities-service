@@ -1,0 +1,21 @@
+resources: 
+- name: cities-ui-be
+  type: compute.v1.backendService
+  properties:
+    affinityCookieTtlSec: 0
+    backends:
+    - balancingMode: UTILIZATION
+      capacityScaler: 1.0
+      group: regions/europe-west2/instanceGroups/cities-ui-ig
+    maxUtilization: 0.8
+    connectionDraining:
+      drainingTimeoutSec: 300
+    enableCDN: false
+    healthChecks:
+    - global/httpHealthChecks/cities-ui-hc
+    loadBalancingScheme: EXTERNAL
+    port: 8081
+    portName: http
+    protocol: HTTP
+    sessionAffinity: NONE
+    timeoutSec: 30
