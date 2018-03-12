@@ -17,9 +17,9 @@ gsutil ls -al gs://${BUCKET_NAME}/
 createInstanceTemplate cities-service-it instance-template.yml
 
 ######### Create Instance Groups for cities service
-TEMP_FILE=autoscale_temp_$$.yml
-cat autoscale.yml | sed s/REGION/$SERVICE_REGION/g > ${TEMP_FILE}
-createRegionalInstanceGroup cities-service-ig ${SERVICE_REGION} instance-group.yml  ${TEMP_FILE} healthchecks.yml
+TEMP_FILE=cities-service-as_temp_$$.yml
+cat cities-service-as.yml | sed s/REGION/$SERVICE_REGION/g > ${TEMP_FILE}
+createRegionalInstanceGroup cities-service-ig ${SERVICE_REGION} cities-service-ig.yml  ${TEMP_FILE} healthchecks.yml
 INST=`gcloud compute instances list | grep cities-service-ig | grep RUNNING | head -n 1`
 #getInstanceOutput $INST ${SERVICE_REGION}
 rm -f ${TEMP_FILE}
@@ -35,14 +35,23 @@ cat startup-scripts/cities-ui.sh | sed s/LB_IP/$FWD_IP/g > startup-scripts/${TEM
 gsutil cp -r startup-scripts/$TEMP_FILE gs://${BUCKET_NAME}/startup-scripts/cities-ui.sh
 rm -f startup-scripts/${TEMP_FILE}
 
-######### Create cities-ui
-echo_mesg "Creating cities-ui"
-gcloud deployment-manager deployments create cities-instances --config instances.yml 
-waitForInstanceToStart cities-ui
-# Wait for App to start
-echo "Waiting for app to start ... "
+######### Create Instance Groups for cities ui
+TEMP_FILE=cities-ui-as_temp_$$.yml
+cat cities-ui-as.yml | sed s/REGION/$SERVICE_REGION/g > ${TEMP_FILE}
+createRegionalInstanceGroup cities-ui-ig ${SERVICE_REGION} cities-ui-ig.yml  ${TEMP_FILE} healthchecks.yml
+INST=`gcloud compute instances list | grep cities-ui-ig | grep RUNNING | head -n 1`
+#getInstanceOutput $INST ${SERVICE_REGION}
+rm -f ${TEMP_FILE}
+echo "Waiting for Instances to Start"
 sleep 120
-#getInstanceOutput cities-ui
+
+######### Create cities-ui
+#echo_mesg "Creating cities-ui"
+#gcloud deployment-manager deployments create cities-instances --config instances.yml 
+#waitForInstanceToStart cities-ui
+# Wait for App to start
+#echo "Waiting for app to start ... "
+#sleep 120
 
 ######### Creating External Firewall Rules for App
 echo_mesg "Creating External HTTP Firewall Rules"

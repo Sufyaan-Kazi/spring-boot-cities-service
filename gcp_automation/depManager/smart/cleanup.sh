@@ -32,14 +32,11 @@ deleteDeploymentAsync() {
 }
 
 deleteCitiesService() {
-  echo "********* Performing Cleanup if necessary *****"
   COUNT=`gcloud deployment-manager deployments list | grep cities-service | wc -l`
   if [ $COUNT -ne 0 ]
   then
     DEPS=`gcloud deployment-manager deployments list`
 
-    deleteDeploymentAsync cities-firewall
-    deleteDeploymentAsync cities-instances
     deleteDeployment cities-service-ig-fwd-rule
     deleteDeployment cities-service-int-lb
     deleteDeployment cities-service-ig-as
@@ -50,7 +47,23 @@ deleteCitiesService() {
   fi
 }
 
+deleteCitiesUI() {
+  COUNT=`gcloud deployment-manager deployments list | grep cities-ui | wc -l`
+  if [ $COUNT -ne 0 ]
+  then
+    DEPS=`gcloud deployment-manager deployments list`
+
+    deleteDeploymentAsync cities-firewall
+    deleteDeploymentAsync cities-instances
+    deleteDeployment cities-ui-ig-as
+    deleteDeployment cities-ui-ig
+    deleteDeploymentAsync cities-ui-ig-hc
+    gcloud deployment-manager deployments list
+  fi
+}
+
+echo "********* Performing Cleanup if necessary *****"
+deleteCitiesUI
 deleteCitiesService
 deleteBucket
-
 echo "********* Cleanup Complete *****"

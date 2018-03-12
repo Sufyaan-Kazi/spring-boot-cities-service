@@ -59,7 +59,7 @@ createRegionalInstanceGroup() {
   gcloud deployment-manager deployments create ${INSTANCEG}-as --config=$4
 
   # Creating Healthcheck for Instance Group
-  echo_mesg "Linking HealthCheck to the Instance Group"
+  echo_mesg "Creating HealthCheck to the Instance Group"
   gcloud deployment-manager deployments create ${INSTANCEG}-hc --config=$5
   #HC=`gcloud compute http-health-checks list | grep cities-service | xargs | cut -d ' ' -f1`
   #gcloud beta compute instance-groups managed set-autohealing ${INSTANCEG} --http-health-check=${HC} --initial-delay=90 --region=$REGION
