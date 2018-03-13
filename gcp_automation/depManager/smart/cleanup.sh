@@ -17,7 +17,8 @@ deleteDeployment() {
   if [ $EXIST -ne 0 ]
   then
     echo "Deleting Deployment: $1"
-    gcloud deployment-manager deployments delete -q $1
+    nohup gcloud deployment-manager deployments delete -q $1 > /dev/null 2>&1 &
+    wait
   fi
 }
 
@@ -27,7 +28,7 @@ deleteDeploymentAsync() {
   if [ $EXIST -ne 0 ]
   then
     echo "Deleting Deployment: $1"
-    gcloud deployment-manager deployments delete -q $1 --async
+    nohup gcloud deployment-manager deployments delete -q $1 --async > /dev/null 2>&1 &
   fi
 }
 
@@ -42,9 +43,8 @@ deleteCitiesService() {
     deleteDeployment cities-service-lb
     deleteDeployment cities-service-ig-as
     deleteDeployment cities-service-ig
-    deleteDeploymentAsync cities-service-lb-hc
+    deleteDeploymentAsync cities-service-lb-hc 
     deleteDeployment cities-service-it
-    gcloud deployment-manager deployments list
   fi
 }
 
@@ -55,7 +55,7 @@ deleteCitiesUI() {
     DEPS=`gcloud deployment-manager deployments list`
 
     deleteDeploymentAsync cities-ui-fw
-    deleteDeployment cities-ui-ig-as
+    deleteDeployment cities-ui-ig-as 
     deleteDeployment cities-ui-fe
     deleteDeployment cities-ui-web-proxy
     deleteDeployment cities-ui-url-map
@@ -63,14 +63,14 @@ deleteCitiesUI() {
     deleteDeployment cities-ui-ig
     deleteDeploymentAsync cities-ui-hc
     deleteDeploymentAsync cities-ui-it
-    gcloud deployment-manager deployments list
-
   fi
 }
 
 echo "********* Performing Cleanup if necessary *****"
 deleteCitiesUI &
 deleteCitiesService &
+gcloud deployment-manager deployments list
 wait
-deleteBucket
+deleteBucket &
+wait
 echo "********* Cleanup Complete *****"

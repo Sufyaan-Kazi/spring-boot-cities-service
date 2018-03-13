@@ -2,12 +2,23 @@
 
 echo_mesg() {
    echo ""
-   echo "  ----- $1 ----  "
-   echo ""
+   echo "----- $1 ----"
 }
 
 getYAMLValue() {
   echo $1 | cut -d ':' | xargs -f2
+}
+
+createDeployment() {
+  if [ $# -ne 2 ]
+  then
+    echo "Not enough arguments supplied, please supply <deploymentName> <yaml_file>"
+    exit 1
+  fi
+
+  NAME=$1
+  YAML=$2
+  gcloud deployment-manager deployments create $NAME --config $YAML > /dev/null
 }
 
 # Create Instance Template
@@ -21,7 +32,7 @@ createInstanceTemplate() {
   local IT=$1-it
 
   echo_mesg "Creating Instance Template: $IT"
-  gcloud deployment-manager deployments create $IT --config $IT.yml
+  createDeployment $IT $IT.yml
 }
 
 waitForInstanceToStart(){
@@ -57,14 +68,33 @@ createRegionalInstanceGroup() {
   local IG=$1-ig
 
   echo_mesg "Creating Instance Group: $IG"
-  gcloud deployment-manager deployments create $IG --config $IG.yml
+  createDeployment $IG $IG.yml
 
   # Define Autoscaling for Instance Group
   # Grab the "template" autoscale definition and replace REGION with actual region desired
   echo_mesg "Setting up Autoscale for: $IG"
   local TEMP_FILE=$IG-as_temp_$$.yml
   cat $IG-as.yml | sed s/REGION/$2/g > ${TEMP_FILE}
-  gcloud deployment-manager deployments create $IG-as --config=$TEMP_FILE;rm -f ${TEMP_FILE}
+  createDeployment $IG-as $TEMP_FILE
+  rm -f ${TEMP_FILE}
+}
+
+waitForFWDIP() {
+  # Get the IP of the TCP Forwarding Rule once it's been assigned
+  local FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
+  local FWD_LIST=""
+  while [ -z $FWD_IP ]
+  do
+    echo "Waiting for IP of forwarding rule: $1-fwd-rule"
+    sleep 10
+    FWD_LIST=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | wc -l`
+    if [ $FWD_LIST -eq 1 ]
+    then 
+      # Grab the ip
+      FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
+    fi
+  done
+  echo "IP of Internal Load Balancer is: $FWD_IP"
 }
 
 # Define Internal Load Balancer
@@ -78,32 +108,18 @@ createIntLB() {
   local LB=$1-lb
 
   echo_mesg "Creating HealthCheck for the Internal Load Balancer: $LB"
-  gcloud deployment-manager deployments create $LB-hc --config=$LB-hc.yml
+  createDeployment $LB-hc $LB-hc.yml
 
   echo_mesg "Creating Internal load balancer: $LB"
-  gcloud deployment-manager deployments create $LB --config=$LB.yml
+  createDeployment $LB $LB.yml
 
   echo_mesg "Defining Backend service (Instance Group) for Internal Load Balancer: $LB"
   gcloud compute backend-services add-backend $LB --instance-group=$1-ig --instance-group-region=$2 --region=$2
 
-  echo_mesg "Defining Forwarding Rule for Internal Load Balancer"
-  gcloud deployment-manager deployments create $LB-fwd-rule --config=$LB-fwd-rule.yml
+  echo_mesg "Defining Forwarding Rule for Internal Load Balancer: $LB"
+  createDeployment $LB-fwd-rule $LB-fwd-rule.yml
 
-  # Get the IP of the Forwarding Rule once it's been assigned
-  local FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
-  local FWD_LIST=""
-  while [ -z $FWD_IP ]
-  do
-    echo "Waiting for IP of forwarding rule: $1-fwd-rule"
-    sleep 10
-    FWD_LIST=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | wc -l`
-    if [ $FWD_LIST -eq 1 ]
-    then
-      # Grab the ip
-      FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
-    fi
-  done
-  echo "IP of Internal Load Balancer is: $FWD_IP"
+  waitForFWDIP
 
   local INSTANCE_NAME=`gcloud compute instances list | grep $1-ig | cut -d ' ' -f1 | head -n 1`
   waitForInstanceToStart $INSTANCE_NAME
@@ -118,19 +134,19 @@ createExtLB() {
   fi
 
   echo_mesg "Creating Healthcheck: $1"
-  gcloud deployment-manager deployments create $1-hc --config=$1-hc.yml
+  createDeployment $1-hc $1-hc.yml
 
   echo_mesg "Creating Backend Service: $1"
-  gcloud deployment-manager deployments create $1-be --config=$1-be.yml
+  createDeployment $1-be $1-be.yml
 
   echo_mesg "Creating URL Map: $1"
-  gcloud deployment-manager deployments create $1-url-map --config=$1-url-map.yml
+  createDeployment $1-url-map $1-url-map.yml
 
   echo_mesg "Creating Web Proxy: $1"
-  gcloud deployment-manager deployments create $1-web-proxy --config=$1-web-proxy.yml
+  createDeployment $1-web-proxy $1-web-proxy.yml
 
   echo_mesg "Creating Web FE: $1"
-  gcloud deployment-manager deployments create $1-fe --config=$1-fe.yml
+  createDeployment $1-fe $1-fe.yml
   sleep 5
 
   echo_mesg "Checking health of backends"
@@ -158,7 +174,7 @@ createFirewall() {
   # Does the firewall rule exist?
 
   echo_mesg "Creating Firewall Rule: $1"
-  gcloud deployment-manager deployments create $1-fw --config $1-fw.yml
+  createDeployment $1-fw $1-fw.yml
   echo "Waiting for firewall rule to take effect ...."
   #gcloud compute firewall-rules list | grep $1-http
   sleep 3
