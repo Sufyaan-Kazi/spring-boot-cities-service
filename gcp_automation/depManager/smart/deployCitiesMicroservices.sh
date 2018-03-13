@@ -2,6 +2,7 @@
 
 # Author: Sufyaan Kazi
 # Date: March 2018
+# Purpose: Deploys cities-service and cities-ui microservices to Compute Engine
 
 #Load in vars and common functions
 . ./vars.txt
@@ -83,6 +84,7 @@ gsutil mb gs://${BUCKET_NAME}/
 
 deployCitiesService
 deployCitiesUI
+createFirewallRules
 
 ######### Launching Browser
 echo_mesg "Determining external URL of application"

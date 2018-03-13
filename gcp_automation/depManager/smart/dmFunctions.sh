@@ -2,6 +2,7 @@
 
 # Author: Sufyaan Kazi
 # Date: March 2018
+# Purpose: Utility functions ot be used deploying apps to Compute Engine
 
 ###
 # Utility method to pretty print messages to the screen
