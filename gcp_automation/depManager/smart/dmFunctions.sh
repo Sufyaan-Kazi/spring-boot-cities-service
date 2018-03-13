@@ -1,14 +1,25 @@
 #!/bin/bash 
 
+###
+# Utility method to pretty print messages to the screen
+###
 echo_mesg() {
    echo ""
    echo "----- $1 ----"
 }
 
+###
+# Utility method to extract a value from YAMl
+###
 getYAMLValue() {
   echo $1 | cut -d ':' | xargs -f2
 }
 
+###
+# Wrapper to gcloud method to create a deployment.
+#
+# Method checks the right number of args were supplied then calls the create deployment method
+###
 createDeployment() {
   if [ $# -ne 2 ]
   then
@@ -21,7 +32,9 @@ createDeployment() {
   gcloud deployment-manager deployments create $NAME --config $YAML > /dev/null
 }
 
-# Create Instance Template
+###
+# Method to Create an Instance Template
+###
 createInstanceTemplate() {
   if [ $# -ne 1 ]
   then
@@ -35,6 +48,11 @@ createInstanceTemplate() {
   createDeployment $IT $IT.yml
 }
 
+###
+# Method which waits for a VM Instance to start.
+#
+# It loops until the status of the instances is "RUNNING"
+###
 waitForInstanceToStart(){
   local INSTANCE_NAME=$1
   local ZONE=`gcloud compute instances list | grep $INSTANCE_NAME | xargs | cut -d ' ' -f2`
@@ -48,6 +66,11 @@ waitForInstanceToStart(){
   done
 }
 
+###
+#
+# Method which grabs the console output for debugging.
+#
+###
 getInstanceOutput() {
   local INST=$1
   local ZONE=`gcloud compute instances list | grep $INST | xargs | cut -d ' ' -f2`
@@ -55,7 +78,12 @@ getInstanceOutput() {
   gcloud compute instances get-serial-port-output ${INST} --zone=${ZONE}
 }
 
-# Create Regional Instance Groups
+###
+# A method to create Regional Instance Group
+#
+# The method creates the Instrance group and autoscaler. The function will override
+# the region in the yamls supplied, but in the future we may use Jinja placeholders
+###
 createRegionalInstanceGroup() {
   if [ $# -ne 2 ]
   then
@@ -79,6 +107,13 @@ createRegionalInstanceGroup() {
   rm -f ${TEMP_FILE}
 }
 
+###
+#
+# Method to wait for the IP of a forwarding rule to be created.
+#
+# This method will wait untilt he forwarding rule of an external load balancer has been provided with an external IP,
+# and can be used to confirm the load balancer is ready to serve traffic
+###
 waitForFWDIP() {
   # Get the IP of the TCP Forwarding Rule once it's been assigned
   local FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
@@ -97,7 +132,18 @@ waitForFWDIP() {
   echo "IP of Internal Load Balancer is: $FWD_IP"
 }
 
-# Define Internal Load Balancer
+###
+# Method to create an Internal Load Balancer
+#
+# The method:
+#   - creates the internal load balancer and healthcheck
+#   - links the two together
+#   - Creates the Backend for the Load Balancer from the associated Instance Group
+#   - Creates forwarding rules for the frontend
+#   - Waits for the internal load balancer to be ready and then atleast one instance of the backends to be readyA
+#
+# The method assumes a commong naming theme for the yamls of all components and deployment names, for simplicity.
+###
 createIntLB() {
   if [ $# -ne 2 ]
   then
@@ -125,7 +171,13 @@ createIntLB() {
   waitForInstanceToStart $INSTANCE_NAME
 }
 
-# Create Ext HTTP Load Balancer
+###
+# Method to create an External HTTP Load Balancer
+#
+# This method creates a healthcheck, backend service, URL Map, Web Proxy and Web Frontend, i.e. components needed for an external HTTP load balancer.
+# The mothod completes when the vm instances in the backend are have initialised and have begun to report their status. Note this does not necessarily
+# mean the instances are ready and healthy, just that they are ALMOST ready
+###
 createExtLB() {
   if [ $# -ne 1 ]
   then
@@ -159,6 +211,14 @@ createExtLB() {
   done
 }
 
+###
+# A method to wait until a backend service is healthy
+#
+# When a backend for a HTTP load balancer is first created it does not immediately report status back.
+# Once it does start to report status, it will initially (most likely) report unhealthy if it is performing apt-get updates
+# and/or starting the app it's hosting. This method is used during this window to determine when the instance is actually healthy
+# as per the rules defined in a healthcheck (e.g. a http request to specific path works)
+###
 waitForHealthyBackend() {  
   local COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
   while [ $COUNT -eq 0 ]
@@ -169,6 +229,10 @@ waitForHealthyBackend() {
   done
 }
 
+###
+# A utiltiy wrapper method to create firewall rules.
+#
+###
 createFirewall() {
   # Try to compensate for GCE Enforcer
   # Does the firewall rule exist?
@@ -180,6 +244,12 @@ createFirewall() {
   sleep 3
 }
 
+###
+# Utility method to ensure a URL returns HTTP 200
+#
+# When a HTTP load balancer is defined, there is a period of time needed to ensure all netowrk paths are clear
+# and the requests result in happy requests.
+###
 checkAppIsReady() {
   #Check app is ready
   URL=$1

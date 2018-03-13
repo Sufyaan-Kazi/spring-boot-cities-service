@@ -91,7 +91,7 @@ echo "  -> URL is $URL"
 checkAppIsReady $URL
 # GCE Enforcer is a bit of a bully sometimes and in addition the app needs to stabilise a bit
 sleep 3
-checkAppIsReady $URL
+#checkAppIsReady $URL
 echo_mesg "Launching Browser: $URL"
 open http://${URL}/
 
