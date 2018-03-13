@@ -1,8 +1,19 @@
 #!/bin/bash 
 
+# Author: Sufyaan Kazi
+# Date: March 2018
+
+#Load in vars and common functions
 . ./vars.txt
 . ./dmFunctions.sh
 
+###
+# Deploys the backend microservice - cities-service.
+# This microservice reads city data from a database and exposes Restful endpoints for CRUD(ish) actions
+#
+# The function creates an instance template, instance group, autoscaling group, internal load balancer and healthcheck.
+# The app spins up a basic in-mem db and loads in test data on first load. It can be configured ot use CloudSQL or a.n.other if needed.
+###
 deployCitiesService() {
   echo_mesg "Deploying cities-service"
 
@@ -18,6 +29,12 @@ deployCitiesService() {
   echo ""
 }
 
+###
+# Deploys the cities-ui Microservice.
+# This microservice calls the cities-service endpoints to display nice graphical representation of the cities data.
+#
+# The app reads the URL or ip address of the backing microservice from an ENVIRONMENT variable (set dynamically on startup)
+###
 deployCitiesUI() {
   echo_mesg "Deploying cities-ui"
 
@@ -35,11 +52,17 @@ deployCitiesUI() {
   echo ""
 }
 
+###
+# Utility function to define firewall rules.
+# This function batches together firewall rules for both micorservices as GCE Enforcer may delete them while the
+# deployment is runnning. 
+#
+# This should construct rules that:
+#   - Enables traffic between the front-end HTTP load balancer (and healthchecks) to the cities-ui app (on port tcp:8080)
+#   - Enables traffic between internal load balancer (and it's healthchecks) to the cities-service apps (on port tcp:8081)
+#   - Enables traffic between the cities-ui layer and the cities-service layer (on port tcp:8081)
 createFirewallRules() {
   echo_mesg "Creating Firewall Rules"
-
-  ######### Create Firewalls
-  # Do this late because of GCE Enforcer
   createFirewall cities-service
   createFirewall cities-ui
   waitForHealthyBackend cities-ui
@@ -64,9 +87,11 @@ deployCitiesUI
 ######### Launching Browser
 echo_mesg "Determining external URL of application"
 URL=`gcloud compute forwarding-rules list | grep cities-ui-fe | xargs | cut -d ' ' -f 2`
+echo "  -> URL is $URL"
 checkAppIsReady $URL
-# GCE Enforcer is a bit of a bully sometimes, and separately the app needs to stabilise a bit
-sleep 5
+# GCE Enforcer is a bit of a bully sometimes and in addition the app needs to stabilise a bit
+sleep 3
+checkAppIsReady $URL
 echo_mesg "Launching Browser: $URL"
 open http://${URL}/
 
