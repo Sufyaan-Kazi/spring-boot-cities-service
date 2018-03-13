@@ -1,5 +1,8 @@
 #!/bin/bash 
 
+# Author: Sufyaan Kazi
+# Date: March 2018
+
 ###
 # Utility method to pretty print messages to the screen
 ###
