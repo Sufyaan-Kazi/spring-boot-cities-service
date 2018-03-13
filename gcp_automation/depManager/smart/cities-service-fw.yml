@@ -12,3 +12,17 @@ resources:
         - '8080'
     targetTags:
       - cities-service
+- name: cities-service-lb
+  type: compute.v1.firewall
+  properties:
+    direction: INGRESS
+    network: global/networks/custom-network
+    sourceRanges:
+      - 130.211.0.0/22
+      - 35.191.0.0/16
+    allowed:
+      - IPProtocol: tcp
+        ports:
+        - '8080'
+    targetTags:
+      - cities-service

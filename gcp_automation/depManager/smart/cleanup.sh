@@ -69,7 +69,8 @@ deleteCitiesUI() {
 }
 
 echo "********* Performing Cleanup if necessary *****"
-deleteCitiesUI
-deleteCitiesService
+deleteCitiesUI &
+deleteCitiesService &
+wait
 deleteBucket
 echo "********* Cleanup Complete *****"

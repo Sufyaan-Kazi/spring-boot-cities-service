@@ -64,17 +64,7 @@ createRegionalInstanceGroup() {
   echo_mesg "Setting up Autoscale for: $IG"
   local TEMP_FILE=$IG-as_temp_$$.yml
   cat $IG-as.yml | sed s/REGION/$2/g > ${TEMP_FILE}
-  gcloud deployment-manager deployments create $IG-as --config=$TEMP_FILE
-  rm -f ${TEMP_FILE}
-
-  # Creating Healthcheck for Instance Group
-  #echo_mesg "Creating HealthCheck for the Instance Group"
-  #gcloud deployment-manager deployments create $1-hc --config=$5
-  #HC=`gcloud compute http-health-checks list | grep cities-service | xargs | cut -d ' ' -f1`
-  #gcloud beta compute instance-groups managed set-autohealing ${INSTANCEG} --http-health-check=${HC} --initial-delay=90 --region=$REGION
-
-  #INSTANCE_NAME=`gcloud compute instances list | grep $IG | cut -d ' ' -f1 | head -n 1`
-  #waitForInstanceToStart $IG
+  gcloud deployment-manager deployments create $IG-as --config=$TEMP_FILE;rm -f ${TEMP_FILE}
 }
 
 # Define Internal Load Balancer
@@ -117,17 +107,11 @@ createIntLB() {
 
   local INSTANCE_NAME=`gcloud compute instances list | grep $1-ig | cut -d ' ' -f1 | head -n 1`
   waitForInstanceToStart $INSTANCE_NAME
-
-  echo_mesg "Creating Firewall Rule: $1"
-  gcloud deployment-manager deployments create $1-fw --config $1-fw.yml
-  echo "Waiting for firewall rule to take effect ...."
-  gcloud compute firewall-rules list | grep $1-http
-  sleep 10
 }
 
 # Create Ext HTTP Load Balancer
 createExtLB() {
-if [ $# -ne 1 ]
+  if [ $# -ne 1 ]
   then
     echo "Not enough arguments supplied, please supply <deploymentName> "
     exit 1
@@ -147,12 +131,47 @@ if [ $# -ne 1 ]
 
   echo_mesg "Creating Web FE: $1"
   gcloud deployment-manager deployments create $1-fe --config=$1-fe.yml
-
   sleep 5
+
+  echo_mesg "Checking health of backends"
+  local ALMOST_READY=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep HEALTHY)
+  while [ -n "$ALMOST_READY" ]
+  do
+    echo "Waiting for backends to register with Load Balancer"
+    sleep 10
+    ALMOST_READY=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep HEALTHY)
+  done
+}
+
+waitForHealthyBackend() {  
+  local COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
+  while [ $COUNT -eq 0 ]
+  do
+    echo "Waiting for Healthy State of Backend Instances of the HTTP Load Balancer: $COUNT"
+    sleep 10
+    COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
+  done
+}
+
+createFirewall() {
+  # Try to compensate for GCE Enforcer
+  # Does the firewall rule exist?
 
   echo_mesg "Creating Firewall Rule: $1"
   gcloud deployment-manager deployments create $1-fw --config $1-fw.yml
   echo "Waiting for firewall rule to take effect ...."
-  gcloud compute firewall-rules list | grep $1-http
-  sleep 10
+  #gcloud compute firewall-rules list | grep $1-http
+  sleep 3
+}
+
+checkAppIsReady() {
+  #Check app is ready
+  URL=$1
+  HTTP_CODE=$(curl -Is http://${URL}/ | grep HTTP | cut -d ' ' -f2)
+  while [ $HTTP_CODE -ne 200 ]
+  do
+    echo "Waiting for app to become ready: $HTTP_CODE"
+    sleep 10
+    HTTP_CODE=$(curl -Is http://${URL}/ | grep HTTP | cut -d ' ' -f2)
+  done
 }
