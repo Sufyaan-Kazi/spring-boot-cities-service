@@ -278,10 +278,10 @@ createIntLB() {
   createDeploymentFromTemplate $LB lb.jinja basename:$1,region:$REGION
 
   echo_mesg "Defining Backend service (Instance Group) for Internal Load Balancer: $LB"
-  gcloud compute backend-services add-backend $LB-be --instance-group=$1-ig --instance-group-region=$2 --region=$2
+  gcloud compute backend-services add-backend $LB --instance-group=$1-ig --instance-group-region=$2 --region=$2
 
   echo_mesg "Defining Forwarding Rule for Internal Load Balancer: $LB"
-  createDeploymentFromTemplate $LB-fwd-rule lb-fwd-rule.jinja basename:$1,project:$PROJECT,region:$REGION,lb:$LB-be,network:$NETWORK,port:$PORT,region:$REGION,subnet:$SUBNET
+  createDeploymentFromTemplate $LB-fwd-rule lb-fwd-rule.jinja basename:$1,project:$PROJECT,region:$REGION,lb:$LB,network:$NETWORK,port:$PORT,region:$REGION,subnet:$SUBNET
 
   waitForFWDIP
 
@@ -303,25 +303,26 @@ createExtLB() {
     exit 1
   fi
 
+  local LB=$1-lb
   local REGION=$2
   local PORT=$3
   local REQUEST_PATH=$4
 
   echo_mesg "Creating Healthcheck: $1"
-  createDeploymentFromTemplate $1-hc http-hc.jinja basename:$1,port:$PORT,requestPath:$REQUEST_PATH
+  createDeploymentFromTemplate $LB-hc http-hc.jinja basename:$1,port:$PORT,requestPath:$REQUEST_PATH
 
   echo_mesg "Creating Backend Service: $1"
-  createDeploymentFromTemplate $1-be be.jinja basename:$1,region:$REGION,port:$PORT
+  createDeploymentFromTemplate $LB-be be.jinja basename:$1,region:$REGION,port:$PORT
 
   echo_mesg "Creating URL Map: $1"
-  createDeploymentFromTemplate $1-url-map url-map.jinja basename:$1
+  createDeploymentFromTemplate $LB-url-map url-map.jinja basename:$1
 
   echo_mesg "Creating Web Proxy: $1"
-  createDeployment $1-web-proxy web-proxy.jinja basename:$1
+  createDeployment $LB-web-proxy web-proxy.jinja basename:$1
 
   echo_mesg "Creating Web FE: $1"
-  createDeployment $1-fe fe.jinja basename:$1,region:$REGION
+  createDeployment $LB-fe fe.jinja basename:$1,region:$REGION
   sleep 5
 
-  waitForHealthyBackend $1-be
+  waitForHealthyBackend $LB-be
 }
