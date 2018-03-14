@@ -27,7 +27,7 @@ getYAMLValue() {
 createDeployment() {
   if [ $# -ne 2 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <yaml_file>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <yaml_file>, recieved: $@"
     exit 1
   fi
 
@@ -44,7 +44,7 @@ createDeployment() {
 createDeploymentFromTemplate() {
   if [ $# -lt 2 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <jinja_file> <optional: property overrides>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <jinja_file> <optional: property overrides>, recieved: $@"
     exit 1
   fi
 
@@ -59,7 +59,7 @@ createDeploymentFromTemplate() {
 createVPCStuff() {
   if [ $# -lt 5 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <network> <subnet> <subnet_cidr> <region>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <network> <subnet> <subnet_cidr> <region>, recieved: $@"
     exit 1
   fi
 
@@ -82,7 +82,7 @@ createVPCStuff() {
 createInstanceTemplate() {
   if [ $# -ne 5 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <region> <network> <subnet> <project>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <network> <subnet> <project>, recieved: $@"
     exit 1
   fi
 
@@ -135,7 +135,7 @@ getInstanceOutput() {
 createRegionalInstanceGroup() {
   if [ $# -ne 5 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <region> <projectname> <network> <subnet>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <projectname> <network> <subnet>, recieved: $@"
     exit 1
   fi
   
@@ -259,7 +259,7 @@ checkAppIsReady() {
 createIntLB() {
   if [ $# -ne 7 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <targetregion> <project> <network> <subnet> <port> <request_path>, only the following supplied $@"
+    echo "Not enough arguments supplied, please supply <deploymentName> <targetregion> <project> <network> <subnet> <port> <request_path>, recieved: $@"
     exit 1
   fi
 
@@ -299,7 +299,7 @@ createIntLB() {
 createExtLB() {
   if [ $# -ne 4 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <region> <requestPath>, only the following were supplied: $@"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <requestPath>, recieved: $@"
     exit 1
   fi
 
