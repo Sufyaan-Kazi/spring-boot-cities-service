@@ -1,15 +1,15 @@
 resources:
-- name: cities-ui-http
+- name: {{ properties["basename"] }}-lb-fw
   type: compute.v1.firewall
   properties:
     direction: INGRESS
-    network: global/networks/custom-network
+    network: global/networks/{{ properties["network"] }}
     sourceRanges:
       - 130.211.0.0/22
       - 35.191.0.0/16
     allowed:
       - IPProtocol: tcp
         ports:
-        - '8081'
+        - '{{ properties["port"] }}'
     targetTags:
-      - cities-ui
+      - {{ properties["target"] }}

@@ -1,5 +1,0 @@
-resources: 
-- name: cities-ui-web-proxy
-  type: compute.v1.targetHttpProxy
-  properties:
-    urlMap: global/urlMaps/cities-ui-lb

@@ -1,5 +1,0 @@
-resources: 
-- name: cities-ui-lb
-  type: compute.v1.urlMap
-  properties:
-    defaultService: global/backendServices/cities-ui-be

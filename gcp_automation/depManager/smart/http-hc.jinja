@@ -1,11 +1,11 @@
 resources:
-- name: cities-ui-hc
+- name: {{ properties["basename"] }}-hc
   type: compute.v1.httpHealthCheck
   properties:
     host: ''
-    port: 8081
+    port: {{ properties["port"] }}
     proxyHeader: NONE
-    requestPath: /
+    requestPath: {{ properties["requestPath"] }}
     checkIntervalSec: 5
     timeoutSec: 5
     healthyThreshold: 1

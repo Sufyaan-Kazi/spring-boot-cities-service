@@ -5,8 +5,13 @@
 # Purpose: Deploys cities-service and cities-ui microservices to Compute Engine
 
 #Load in vars and common functions
-. ./vars.txt
+. ./vars.properties
 . ./dmFunctions.sh
+
+createVPCNetwork() {
+  echo_mesg "Creating network and subnet"
+  createVPCStuff $APP $NETWORK $SUBNET $SUBNET_CIDR $APP_REGION
+}
 
 ###
 # Deploys the backend microservice - cities-service.
@@ -22,10 +27,10 @@ deployCitiesService() {
   gsutil cp -r startup-scripts/cities-service.sh gs://${BUCKET_NAME}/startup-scripts/cities-service.sh 
 
   ######### Create Instance Group for cities service
-  createRegionalInstanceGroup cities-service ${APP_REGION}
+  createRegionalInstanceGroup cities-service ${APP_REGION} ${PROJECT} $NETWORK $SUBNET
 
   ######### Define Internal Load Balancer for cities-service
-  createIntLB cities-service ${APP_REGION}
+  createIntLB cities-service ${APP_REGION} ${PROJECT} $NETWORK $SUBNET $BE_PORT $BE_REQUEST_PATH
 
   echo ""
 }
@@ -43,12 +48,12 @@ deployCitiesUI() {
   gsutil cp -r startup-scripts/cities-ui.sh gs://${BUCKET_NAME}/startup-scripts/cities-ui.sh
 
   ######### Create Instance Groups for cities ui
-  createRegionalInstanceGroup cities-ui ${APP_REGION}
+  createRegionalInstanceGroup cities-ui ${APP_REGION} ${PROJECT} $NETWORK $SUBNET
   echo "  .... Waiting for apt-get updates to complete and then applications to start for cities-ui .... "
   sleep 120
 
   ######### Create External Load Balancer
-  createExtLB cities-ui
+  createExtLB cities-ui $APP_REGION $FE_PORT $FE_REQUEST_PATH
 
   echo ""
 }
@@ -64,24 +69,31 @@ deployCitiesUI() {
 #   - Enables traffic between the cities-ui layer and the cities-service layer (on port tcp:8081)
 createFirewallRules() {
   echo_mesg "Creating Firewall Rules"
-  createFirewall cities-service
-  createFirewall cities-ui
+  createFirewall-LBToTag cities-service $NETWORK $BE_PORT $BE_TAG
+  createFirewall-LBToTag cities-ui $NETWORK $FE_PORT $FE_TAG
+  createFirewall-TagToTag cities-ui $NETWORK $BE_PORT $FE_TAG $BE_TAG
   waitForHealthyBackend cities-ui
 
   echo ""
 }
 
 SECONDS=0
+BUCKET_NAME=$PROJECT-$APP
 
 # Start
 . ./cleanup.sh
 
 echo_mesg "****** Deploying Microservices *****"
+#gcloud projects create $PROJECT 
 
 ######### Create Bucket
 echo_mesg "Creating Bucket"
 gsutil mb gs://${BUCKET_NAME}/
 
+######## Create VPC Network and subnetwork
+createVPCNetwork
+
+######## Deploy Apps 
 deployCitiesService
 deployCitiesUI
 createFirewallRules
@@ -92,7 +104,7 @@ URL=`gcloud compute forwarding-rules list | grep cities-ui-fe | xargs | cut -d '
 echo "  -> URL is $URL"
 checkAppIsReady $URL
 # GCE Enforcer is a bit of a bully sometimes and in addition the app needs to stabilise a bit
-sleep 3
+sleep 7
 #checkAppIsReady $URL
 echo_mesg "Launching Browser: $URL"
 open http://${URL}/

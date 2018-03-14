@@ -31,25 +31,69 @@ createDeployment() {
     exit 1
   fi
 
-  NAME=$1
-  YAML=$2
+  local NAME=$1
+  local YAML=$2
   gcloud deployment-manager deployments create $NAME --config $YAML > /dev/null
+}
+
+###
+# Wrapper to gcloud method to create a deployment.
+#
+# Method checks the right number of args were supplied then calls the create deployment method
+###
+createDeploymentFromTemplate() {
+  if [ $# -lt 2 ]
+  then
+    echo "Not enough arguments supplied, please supply <deploymentName> <jinja_file> <optional: property overrides>"
+    exit 1
+  fi
+
+  local NAME=$1
+  local JINJA=$2
+  gcloud deployment-manager deployments create $NAME --template $JINJA --properties $3 > /dev/null
+}
+
+###
+# Creates VPC network and subnetworks
+###
+createVPCStuff() {
+  if [ $# -lt 5 ]
+  then
+    echo "Not enough arguments supplied, please supply <deploymentName> <network> <subnet> <subnet_cidr> <region>"
+    exit 1
+  fi
+
+  local NAME=$1
+  local NETWORK=$2
+  local SUBNET=$3
+  local SUBNET_CIDR=$4
+  local REGION=$5
+
+  # Create the network
+  createDeploymentFromTemplate $NAME-$NETWORK regional-network.jinja network:$NETWORK
+
+  # Create the subnetwork
+  createDeploymentFromTemplate $NAME-$SUBNET subnet.jinja network:$NETWORK,subnet:$SUBNET,subnet_cidr:$SUBNET_CIDR,region:$REGION
 }
 
 ###
 # Method to Create an Instance Template
 ###
 createInstanceTemplate() {
-  if [ $# -ne 1 ]
+  if [ $# -ne 5 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <network> <subnet> <project>"
     exit 1
   fi
 
   local IT=$1-it
+  local REGION=$2
+  local NETWORK=$3
+  local SUBNET=$4
+  local PROJECT=$5
 
   echo_mesg "Creating Instance Template: $IT"
-  createDeployment $IT $IT.yml
+  createDeploymentFromTemplate $IT it.jinja basename:$1,region:$REGION,network:$NETWORK,subnet:$SUBNET,project:$PROJECT
 }
 
 ###
@@ -89,33 +133,33 @@ getInstanceOutput() {
 # the region in the yamls supplied, but in the future we may use Jinja placeholders
 ###
 createRegionalInstanceGroup() {
-  if [ $# -ne 2 ]
+  if [ $# -ne 5 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <region>"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <projectname> <network> <subnet>"
     exit 1
   fi
   
-  createInstanceTemplate $1
-
   local IG=$1-ig
+  local REGION=$2
+  local PROJECT=$3
+  local NETWORK=$4
+  local SUBNET=$5
+
+  createInstanceTemplate $1 $REGION $NETWORK $SUBNET $PROJECT
 
   echo_mesg "Creating Instance Group: $IG"
-  createDeployment $IG $IG.yml
+  createDeploymentFromTemplate $IG ig.jinja basename:$1,region:$REGION
 
   # Define Autoscaling for Instance Group
-  # Grab the "template" autoscale definition and replace REGION with actual region desired
   echo_mesg "Setting up Autoscale for: $IG"
-  local TEMP_FILE=$IG-as_temp_$$.yml
-  cat $IG-as.yml | sed s/REGION/$2/g > ${TEMP_FILE}
-  createDeployment $IG-as $TEMP_FILE
-  rm -f ${TEMP_FILE}
+  createDeploymentFromTemplate $IG-as ig-as.jinja basename:$1,region:$REGION,project:$PROJECT
 }
 
 ###
 #
 # Method to wait for the IP of a forwarding rule to be created.
 #
-# This method will wait untilt he forwarding rule of an external load balancer has been provided with an external IP,
+# This method will wait until the forwarding rule of an external load balancer has been provided with an external IP,
 # and can be used to confirm the load balancer is ready to serve traffic
 ###
 waitForFWDIP() {
@@ -137,98 +181,14 @@ waitForFWDIP() {
 }
 
 ###
-# Method to create an Internal Load Balancer
-#
-# The method:
-#   - creates the internal load balancer and healthcheck
-#   - links the two together
-#   - Creates the Backend for the Load Balancer from the associated Instance Group
-#   - Creates forwarding rules for the frontend
-#   - Waits for the internal load balancer to be ready and then atleast one instance of the backends to be readyA
-#
-# The method assumes a commong naming theme for the yamls of all components and deployment names, for simplicity.
-###
-createIntLB() {
-  if [ $# -ne 2 ]
-  then
-    echo "Not enough arguments supplied, please supply <deploymentName> <targetregion>"
-    exit 1
-  fi
-
-  local LB=$1-lb
-
-  echo_mesg "Creating HealthCheck for the Internal Load Balancer: $LB"
-  createDeployment $LB-hc $LB-hc.yml
-
-  echo_mesg "Creating Internal load balancer: $LB"
-  createDeployment $LB $LB.yml
-
-  echo_mesg "Defining Backend service (Instance Group) for Internal Load Balancer: $LB"
-  gcloud compute backend-services add-backend $LB --instance-group=$1-ig --instance-group-region=$2 --region=$2
-
-  echo_mesg "Defining Forwarding Rule for Internal Load Balancer: $LB"
-  createDeployment $LB-fwd-rule $LB-fwd-rule.yml
-
-  waitForFWDIP
-
-  local INSTANCE_NAME=`gcloud compute instances list | grep $1-ig | cut -d ' ' -f1 | head -n 1`
-  waitForInstanceToStart $INSTANCE_NAME
-}
-
-###
-# Method to create an External HTTP Load Balancer
-#
-# This method creates a healthcheck, backend service, URL Map, Web Proxy and Web Frontend, i.e. components needed for an external HTTP load balancer.
-# The mothod completes when the vm instances in the backend are have initialised and have begun to report their status. Note this does not necessarily
-# mean the instances are ready and healthy, just that they are ALMOST ready
-###
-createExtLB() {
-  if [ $# -ne 1 ]
-  then
-    echo "Not enough arguments supplied, please supply <deploymentName> "
-    exit 1
-  fi
-
-  echo_mesg "Creating Healthcheck: $1"
-  createDeployment $1-hc $1-hc.yml
-
-  echo_mesg "Creating Backend Service: $1"
-  createDeployment $1-be $1-be.yml
-
-  echo_mesg "Creating URL Map: $1"
-  createDeployment $1-url-map $1-url-map.yml
-
-  echo_mesg "Creating Web Proxy: $1"
-  createDeployment $1-web-proxy $1-web-proxy.yml
-
-  echo_mesg "Creating Web FE: $1"
-  createDeployment $1-fe $1-fe.yml
-  sleep 5
-
-  echo_mesg "Checking health of backends"
-  local ALMOST_READY=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep HEALTHY)
-  while [ -n "$ALMOST_READY" ]
-  do
-    echo "Waiting for backends to register with Load Balancer"
-    sleep 10
-    ALMOST_READY=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep HEALTHY)
-  done
-}
-
-###
-# A method to wait until a backend service is healthy
-#
-# When a backend for a HTTP load balancer is first created it does not immediately report status back.
-# Once it does start to report status, it will initially (most likely) report unhealthy if it is performing apt-get updates
-# and/or starting the app it's hosting. This method is used during this window to determine when the instance is actually healthy
-# as per the rules defined in a healthcheck (e.g. a http request to specific path works)
+# Method to wait for backend of HTTP load balancer to be ready
 ###
 waitForHealthyBackend() {  
   local COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
   while [ $COUNT -eq 0 ]
   do
     echo "Waiting for Healthy State of Backend Instances of the HTTP Load Balancer: $COUNT"
-    sleep 10
+    besleep 10
     COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
   done
 }
@@ -237,12 +197,30 @@ waitForHealthyBackend() {
 # A utiltiy wrapper method to create firewall rules.
 #
 ###
-createFirewall() {
-  # Try to compensate for GCE Enforcer
-  # Does the firewall rule exist?
+createFirewall-LBToTag() {
+  local NETWORK=$2
+  local PORT=$3
+  local TARGET=$4
 
   echo_mesg "Creating Firewall Rule: $1"
-  createDeployment $1-fw $1-fw.yml
+  createDeploymentFromTemplate $1-lb-fw lb-fw.jinja basename:$1,network:$NETWORK,port:$PORT,target:$TARGET
+  echo "Waiting for firewall rule to take effect ...."
+  #gcloud compute firewall-rules list | grep $1-http
+  sleep 3
+}
+
+###
+# A utiltiy wrapper method to create firewall rules.
+#
+###
+createFirewall-TagToTag() {
+  local NETWORK=$2
+  local PORT=$3
+  local SOURCE=$4
+  local TARGET=$5
+  
+  echo_mesg "Creating Firewall Rule: $1"
+  createDeploymentFromTemplate $1-fw fw.jinja basename:$1,network:$NETWORK,port:$PORT,source:$SOURCE,target:$TARGET
   echo "Waiting for firewall rule to take effect ...."
   #gcloud compute firewall-rules list | grep $1-http
   sleep 3
@@ -256,8 +234,8 @@ createFirewall() {
 ###
 checkAppIsReady() {
   #Check app is ready
-  URL=$1
-  HTTP_CODE=$(curl -Is http://${URL}/ | grep HTTP | cut -d ' ' -f2)
+  local URL=$1
+  local HTTP_CODE=$(curl -Is http://${URL}/ | grep HTTP | cut -d ' ' -f2)
   while [ $HTTP_CODE -ne 200 ]
   do
     echo "Waiting for app to become ready: $HTTP_CODE"

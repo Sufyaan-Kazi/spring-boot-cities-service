@@ -1,10 +1,10 @@
 resources:
-- name: cities-ui-fe
+- name: {{ properties["basename"] }}-fe
   type: compute.v1.globalForwardingRules
   properties:
     IPProtocol: TCP
     ipVersion: IPV4
     loadBalancingScheme: EXTERNAL
     portRange: 80-80
-    region: europe-west2
-    target: global/targetHttpProxies/cities-ui-web-proxy
+    region: {{ properties["region"] }}
+    target: global/targetHttpProxies/{{ properties["basename"] }}-web-proxy

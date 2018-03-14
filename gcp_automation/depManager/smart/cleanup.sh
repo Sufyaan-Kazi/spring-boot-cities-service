@@ -2,17 +2,16 @@
 
 # Author: Sufyaan Kazi
 # Date: March 2018
-# Purpose: Removes the cities-service and cities-ui deployments
+# Purpose: Removes the $BE_TAG and $FE_TAG deployments
 
-# Load in cars
-. vars.txt
+. vars.properties
+BUCKET_NAME=$PROJECT-$APP
 
 ##
 # Removes bucket
 #
 deleteBucket() {
-  COUNT=`gsutil ls | grep ${BUCKET_NAME} | wc -l`
-  if [ $COUNT -ne 0 ]
+  if [ ! -z $BUCKET_NAME ]
   then
     echo "Deleting bucket"
     gsutil rm -raf gs://${BUCKET_NAME}/*
@@ -34,7 +33,7 @@ deleteDeployment() {
   if [ $EXIST -ne 0 ]
   then
     echo "Deleting Deployment: $1"
-    nohup gcloud deployment-manager deployments delete -q $1 > /dev/null 2>&1 &
+    nohup gcloud deployment-manager deployments delete -q $1 > /dev/null  &
     wait
   fi
 }
@@ -55,50 +54,66 @@ deleteDeploymentAsync() {
 }
 
 ###
-# Deletes the cities-service microservice
+# Deletes the $BE_TAG microservice
 ###
-deleteCitiesService() {
-  COUNT=`gcloud deployment-manager deployments list | grep cities-service | wc -l`
-  if [ $COUNT -ne 0 ]
-  then
-    DEPS=`gcloud deployment-manager deployments list`
-
-    deleteDeploymentAsync cities-service-fw
-    deleteDeployment cities-service-lb-fwd-rule
-    deleteDeployment cities-service-lb
-    deleteDeployment cities-service-ig-as
-    deleteDeployment cities-service-ig
-    deleteDeploymentAsync cities-service-lb-hc 
-    deleteDeployment cities-service-it
-  fi
+deleteBE() {
+  deleteDeploymentAsync $BE_TAG-lb-fw
+  deleteDeployment $BE_TAG-lb-fwd-rule
+  deleteDeployment $BE_TAG-lb
+  deleteDeployment $BE_TAG-ig-as
+  deleteDeployment $BE_TAG-ig
+  deleteDeploymentAsync $BE_TAG-lb-hc 
+  deleteDeployment $BE_TAG-it
 }
 
 ###
-# Deletes the cities-ui microservice
+# Deletes the $FE_TAG microservice
 ###
-deleteCitiesUI() {
-  COUNT=`gcloud deployment-manager deployments list | grep cities-ui | wc -l`
-  if [ $COUNT -ne 0 ]
-  then
-    DEPS=`gcloud deployment-manager deployments list`
+deleteFE() {
+  deleteDeploymentAsync $FE_TAG-fw
+  deleteDeploymentAsync $FE_TAG-lb-fw
+  deleteDeployment $FE_TAG-ig-as 
+  deleteDeployment $FE_TAG-fe
+  deleteDeployment $FE_TAG-web-proxy
+  deleteDeployment $FE_TAG-url-map
+  deleteDeployment $FE_TAG-be
+  deleteDeployment $FE_TAG-ig
+  deleteDeploymentAsync $FE_TAG-hc
+  deleteDeploymentAsync $FE_TAG-it
+}
 
-    deleteDeploymentAsync cities-ui-fw
-    deleteDeployment cities-ui-ig-as 
-    deleteDeployment cities-ui-fe
-    deleteDeployment cities-ui-web-proxy
-    deleteDeployment cities-ui-url-map
-    deleteDeployment cities-ui-be
-    deleteDeployment cities-ui-ig
-    deleteDeploymentAsync cities-ui-hc
-    deleteDeploymentAsync cities-ui-it
-  fi
+###
+# Delete GCE Enforcer stuff
+###
+deleteGCEEnforcerStuff() {
+  echo "Deleting GCE Enforcer and a.n.other firewall rules"
+
+  RULES=$(gcloud compute firewall-rules list | grep $NETWORK | cut -d ' ' -f1 | xargs)
+  for RULE in $RULES
+  do
+    echo "Deleting firewall rule: $RULE"
+    nohup gcloud compute firewall-rules delete $RULE -q >/dev/null 2>&1 &
+  done
+  wait
+}
+
+###
+# Delete network and subnets
+###
+deleteVPCStuff() {
+  deleteGCEEnforcerStuff
+  deleteDeployment $APP-$SUBNET
+  deleteDeployment $APP-$NETWORK
 }
 
 echo "********* Performing Cleanup if necessary *****"
-deleteCitiesUI &
-deleteCitiesService &
+DEPS=`gcloud deployment-manager deployments list`
+deleteFE &
+deleteBE &
+wait
+deleteVPCStuff &
 wait
 gcloud deployment-manager deployments list
-deleteBucket &
-wait
+deleteBucket 
+#gcloud projects delete $PROJECT -q
 echo "********* Cleanup Complete *****"

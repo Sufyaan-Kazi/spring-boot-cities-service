@@ -1,2 +1,0 @@
-BUCKET_NAME=suf-spring-boot-cities
-APP_REGION=europe-west2

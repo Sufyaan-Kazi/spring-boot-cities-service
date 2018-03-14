@@ -1,12 +1,12 @@
 resources:
-- name: cities-service-lb-hc
+- name: {{ properties["basename"] }}-lb-hc
   type: compute.v1.healthCheck
   properties:
     httpHealthCheck:
       host: ''
-      port: 8080
+      port: {{ properties["port"] }}
       proxyHeader: NONE
-      requestPath: /cities
+      requestPath: {{ properties["requestPath"] }}
     checkIntervalSec: 5
     timeoutSec: 5
     type: HTTP
