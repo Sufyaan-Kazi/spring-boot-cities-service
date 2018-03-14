@@ -257,7 +257,7 @@ checkAppIsReady() {
 # The method assumes a commong naming theme for the yamls of all components and deployment names, for simplicity.
 ###
 createIntLB() {
-  if [ $# -ne 2 ]
+  if [ $# -ne 7 ]
   then
     echo "Not enough arguments supplied, please supply <deploymentName> <targetregion> <project> <network> <subnet> <port> <request_path>, only the following supplied $@"
     exit 1
@@ -297,7 +297,7 @@ createIntLB() {
 # mean the instances are ready and healthy, just that they are ALMOST ready
 ###
 createExtLB() {
-  if [ $# -ne 1 ]
+  if [ $# -ne 4 ]
   then
     echo "Not enough arguments supplied, please supply <deploymentName> <region> <requestPath>, only the following were supplied: $@"
     exit 1
