@@ -5,18 +5,15 @@
 # Purpose: Removes the $BE_TAG and $FE_TAG deployments
 
 . vars.properties
-BUCKET_NAME=$PROJECT-$APP
 
 ##
 # Removes bucket
 #
 deleteBucket() {
-  if [ ! -z $BUCKET_NAME ]
-  then
-    echo "Deleting bucket"
-    gsutil rm -raf gs://${BUCKET_NAME}/*
-    gsutil rb -f gs://${BUCKET_NAME}/
-  fi
+  local BUCKET_NAME=$PROJECT-$APP
+  echo "Deleting bucket"
+  gsutil rm -raf gs://${BUCKET_NAME}/*
+  gsutil rb -f gs://${BUCKET_NAME}/
 }
 
 ##
@@ -73,7 +70,7 @@ deleteFE() {
   deleteDeploymentAsync $FE_TAG-fw
   deleteDeploymentAsync $FE_TAG-lb-fw
   deleteDeployment $FE_TAG-ig-as 
-  deleteDeployment $FE_TAG-fe
+  deleteDeployment $FE_TAG-lb-fe
   deleteDeployment $FE_TAG-lb-web-proxy
   deleteDeployment $FE_TAG-lb-url-map
   deleteDeployment $FE_TAG-lb-be

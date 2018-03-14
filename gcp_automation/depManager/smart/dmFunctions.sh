@@ -164,20 +164,20 @@ createRegionalInstanceGroup() {
 ###
 waitForFWDIP() {
   # Get the IP of the TCP Forwarding Rule once it's been assigned
-  local FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
+  local FWD_IP=`gcloud compute forwarding-rules list | grep $1 | xargs | cut -d ' ' -f 3`
   local FWD_LIST=""
   while [ -z $FWD_IP ]
   do
     echo "Waiting for IP of forwarding rule: $1-fwd-rule"
     sleep 10
-    FWD_LIST=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | wc -l`
+    FWD_LIST=`gcloud compute forwarding-rules list | grep $1 | wc -l`
     if [ $FWD_LIST -eq 1 ]
     then 
       # Grab the ip
-      FWD_IP=`gcloud compute forwarding-rules list | grep $LB-fwd-rule | xargs | cut -d ' ' -f 3`
+      FWD_IP=`gcloud compute forwarding-rules list | grep $1 | xargs | cut -d ' ' -f 3`
     fi
   done
-  echo "IP of Internal Load Balancer is: $FWD_IP"
+  echo "IP of $1 Load Balancer is: $FWD_IP"
 }
 
 ###
@@ -283,7 +283,7 @@ createIntLB() {
   echo_mesg "Defining Forwarding Rule for Internal Load Balancer: $LB"
   createDeploymentFromTemplate $LB-fwd-rule lb-fwd-rule.jinja basename:$1,project:$PROJECT,region:$REGION,lb:$LB,network:$NETWORK,port:$PORT,region:$REGION,subnet:$SUBNET
 
-  waitForFWDIP
+  waitForFWDIP $LB
 
   local INSTANCE_NAME=`gcloud compute instances list | grep $1-ig | cut -d ' ' -f1 | head -n 1`
   waitForInstanceToStart $INSTANCE_NAME
@@ -322,4 +322,6 @@ createExtLB() {
 
   echo_mesg "Creating Web FE: $1"
   createDeploymentFromTemplate $LB-fe fe.jinja basename:$1,region:$REGION
+
+  waitForFWDIP $LB
 }

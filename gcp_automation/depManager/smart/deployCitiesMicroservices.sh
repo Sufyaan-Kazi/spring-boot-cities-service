@@ -21,6 +21,7 @@ createVPCNetwork() {
 # The app spins up a basic in-mem db and loads in test data on first load. It can be configured ot use CloudSQL or a.n.other if needed.
 ###
 deployCitiesService() {
+echo ${BUCKET_NAME}
   echo_mesg "Deploying cities-service"
 
   ######### Copy Startup Script for cities-service
@@ -91,10 +92,13 @@ echo_mesg "Creating Bucket"
 gsutil mb gs://${BUCKET_NAME}/
 
 ######## Create VPC Network and subnetwork
+echo ${BUCKET_NAME}
 createVPCNetwork
+echo ${BUCKET_NAME}
 
 ######## Deploy Apps 
 deployCitiesService
+echo ${BUCKET_NAME}
 deployCitiesUI
 createFirewallRules
 
