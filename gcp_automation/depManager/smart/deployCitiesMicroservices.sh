@@ -28,7 +28,7 @@ echo ${BUCKET_NAME}
   gsutil cp -r startup-scripts/cities-service.sh gs://${BUCKET_NAME}/startup-scripts/cities-service.sh 
 
   ######### Create Instance Group for cities service
-  createRegionalInstanceGroup cities-service ${APP_REGION} ${PROJECT} $NETWORK $SUBNET
+  createRegionalInstanceGroup cities-service ${APP_REGION} ${PROJECT} $NETWORK $SUBNET $BUCKET_NAME
 
   ######### Define Internal Load Balancer for cities-service
   createIntLB cities-service ${APP_REGION} ${PROJECT} $NETWORK $SUBNET $BE_PORT $BE_REQUEST_PATH
@@ -92,13 +92,10 @@ echo_mesg "Creating Bucket"
 gsutil mb gs://${BUCKET_NAME}/
 
 ######## Create VPC Network and subnetwork
-echo ${BUCKET_NAME}
 createVPCNetwork
-echo ${BUCKET_NAME}
 
 ######## Deploy Apps 
 deployCitiesService
-echo ${BUCKET_NAME}
 deployCitiesUI
 createFirewallRules
 

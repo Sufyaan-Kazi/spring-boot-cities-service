@@ -80,9 +80,9 @@ createVPCStuff() {
 # Method to Create an Instance Template
 ###
 createInstanceTemplate() {
-  if [ $# -ne 5 ]
+  if [ $# -ne 6 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <region> <network> <subnet> <project>, recieved: $@"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <network> <subnet> <project> <bucketname>, recieved: $@"
     exit 1
   fi
 
@@ -91,9 +91,11 @@ createInstanceTemplate() {
   local NETWORK=$3
   local SUBNET=$4
   local PROJECT=$5
+  local BUCKET_NAME=$6
 
+  echo $BUCKET_NAME
   echo_mesg "Creating Instance Template: $IT"
-  createDeploymentFromTemplate $IT it.jinja basename:$1,region:$REGION,network:$NETWORK,subnet:$SUBNET,project:$PROJECT
+  createDeploymentFromTemplate $IT it.jinja basename:$1,region:$REGION,network:$NETWORK,subnet:$SUBNET,project:$PROJECT,bucketname:$BUCKET_NAME
 }
 
 ###
@@ -133,9 +135,9 @@ getInstanceOutput() {
 # the region in the yamls supplied, but in the future we may use Jinja placeholders
 ###
 createRegionalInstanceGroup() {
-  if [ $# -ne 5 ]
+  if [ $# -ne 6 ]
   then
-    echo "Not enough arguments supplied, please supply <deploymentName> <region> <projectname> <network> <subnet>, recieved: $@"
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <projectname> <network> <subnet> <bucketname>, recieved: $@"
     exit 1
   fi
   
@@ -144,8 +146,9 @@ createRegionalInstanceGroup() {
   local PROJECT=$3
   local NETWORK=$4
   local SUBNET=$5
+  local BUCKET_NAME=$6
 
-  createInstanceTemplate $1 $REGION $NETWORK $SUBNET $PROJECT
+  createInstanceTemplate $1 $REGION $NETWORK $SUBNET $PROJECT $BUCKET_NAME
 
   echo_mesg "Creating Instance Group: $IG"
   createDeploymentFromTemplate $IG ig.jinja basename:$1,region:$REGION

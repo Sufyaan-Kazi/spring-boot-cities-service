@@ -25,7 +25,7 @@ resources:
         - key: serial-port-enable
           value: '1'
         - key: startup-script-url
-          value: gs://{{ properties["project"] }}/startup-scripts/{{ properties["basename"] }}.sh
+          value: gs://{{ properties["bucketname"] }}/startup-scripts/{{ properties["basename"] }}.sh
       serviceAccounts:
         - email: default
           scopes:
