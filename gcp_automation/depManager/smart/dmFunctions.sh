@@ -188,7 +188,7 @@ waitForHealthyBackend() {
   while [ $COUNT -eq 0 ]
   do
     echo "Waiting for Healthy State of Backend Instances of the HTTP Load Balancer: $COUNT"
-    besleep 10
+    sleep 10
     COUNT=$(gcloud compute backend-services get-health $1 --global | grep healthState | grep ': HEALTHY' | wc -l)
   done
 }
