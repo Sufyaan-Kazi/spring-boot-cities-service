@@ -2,4 +2,4 @@ resources:
 - name: {{ properties["basename"] }}-lb
   type: compute.v1.urlMap
   properties:
-    defaultService: global/backendServices/{{ properties["basename"] }}-be
+    defaultService: global/backendServices/{{ properties["basename"] }}-lb-be
