@@ -184,12 +184,12 @@ waitForFWDIP() {
 # Method to wait for backend of HTTP load balancer to be ready
 ###
 waitForHealthyBackend() {  
-  local COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
+  local COUNT=$(gcloud compute backend-services get-health $1 --global | grep healthState | grep ': HEALTHY' | wc -l)
   while [ $COUNT -eq 0 ]
   do
     echo "Waiting for Healthy State of Backend Instances of the HTTP Load Balancer: $COUNT"
     besleep 10
-    COUNT=$(gcloud compute backend-services get-health $1-be --global | grep healthState | grep ': HEALTHY' | wc -l)
+    COUNT=$(gcloud compute backend-services get-health $1 --global | grep healthState | grep ': HEALTHY' | wc -l)
   done
 }
 
@@ -242,4 +242,86 @@ checkAppIsReady() {
     sleep 10
     HTTP_CODE=$(curl -Is http://${URL}/ | grep HTTP | cut -d ' ' -f2)
   done
+}
+
+###
+# Method to create an Internal Load Balancer
+#
+# The method:
+#   - creates the internal load balancer and healthcheck
+#   - links the two together
+#   - Creates the Backend for the Load Balancer from the associated Instance Group
+#   - Creates forwarding rules for the frontend
+#   - Waits for the internal load balancer to be ready and then atleast one instance of the backends to be readyA
+#
+# The method assumes a commong naming theme for the yamls of all components and deployment names, for simplicity.
+###
+createIntLB() {
+  if [ $# -ne 2 ]
+  then
+    echo "Not enough arguments supplied, please supply <deploymentName> <targetregion> <project> <network> <subnet> <port> <request_path>, only the following supplied $@"
+    exit 1
+  fi
+
+  local LB=$1-lb
+  local REGION=$2
+  local PROJECT=$3
+  local NETWORK=$4
+  local SUBNET=$5
+  local PORT=$6
+  local REQUEST_PATH=$7
+
+  echo_mesg "Creating HealthCheck for the Internal Load Balancer: $LB"
+  createDeploymentFromTemplate $LB-hc lb-hc.jinja basename:$1,port:$PORT,requestPath:$REQUEST_PATH
+
+  echo_mesg "Creating Internal load balancer: $LB"
+  createDeploymentFromTemplate $LB lb.jinja basename:$1,region:$REGION
+
+  echo_mesg "Defining Backend service (Instance Group) for Internal Load Balancer: $LB"
+  gcloud compute backend-services add-backend $LB-be --instance-group=$1-ig --instance-group-region=$2 --region=$2
+
+  echo_mesg "Defining Forwarding Rule for Internal Load Balancer: $LB"
+  createDeploymentFromTemplate $LB-fwd-rule lb-fwd-rule.jinja basename:$1,project:$PROJECT,region:$REGION,lb:$LB-be,network:$NETWORK,port:$PORT,region:$REGION,subnet:$SUBNET
+
+  waitForFWDIP
+
+  local INSTANCE_NAME=`gcloud compute instances list | grep $1-ig | cut -d ' ' -f1 | head -n 1`
+  waitForInstanceToStart $INSTANCE_NAME
+}
+
+###
+# Method to create an External HTTP Load Balancer
+#
+# This method creates a healthcheck, backend service, URL Map, Web Proxy and Web Frontend, i.e. components needed for an external HTTP load balancer.
+# The mothod completes when the vm instances in the backend are have initialised and have begun to report their status. Note this does not necessarily
+# mean the instances are ready and healthy, just that they are ALMOST ready
+###
+createExtLB() {
+  if [ $# -ne 1 ]
+  then
+    echo "Not enough arguments supplied, please supply <deploymentName> <region> <requestPath>, only the following were supplied: $@"
+    exit 1
+  fi
+
+  local REGION=$2
+  local PORT=$3
+  local REQUEST_PATH=$4
+
+  echo_mesg "Creating Healthcheck: $1"
+  createDeploymentFromTemplate $1-hc http-hc.jinja basename:$1,port:$PORT,requestPath:$REQUEST_PATH
+
+  echo_mesg "Creating Backend Service: $1"
+  createDeploymentFromTemplate $1-be be.jinja basename:$1,region:$REGION,port:$PORT
+
+  echo_mesg "Creating URL Map: $1"
+  createDeploymentFromTemplate $1-url-map url-map.jinja basename:$1
+
+  echo_mesg "Creating Web Proxy: $1"
+  createDeployment $1-web-proxy web-proxy.jinja basename:$1
+
+  echo_mesg "Creating Web FE: $1"
+  createDeployment $1-fe fe.jinja basename:$1,region:$REGION
+  sleep 5
+
+  waitForHealthyBackend $1-be
 }
