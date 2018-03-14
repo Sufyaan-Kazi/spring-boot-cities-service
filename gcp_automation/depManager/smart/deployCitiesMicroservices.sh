@@ -72,7 +72,7 @@ createFirewallRules() {
   createFirewall-LBToTag cities-service $NETWORK $BE_PORT $BE_TAG
   createFirewall-LBToTag cities-ui $NETWORK $FE_PORT $FE_TAG
   createFirewall-TagToTag cities-ui $NETWORK $BE_PORT $FE_TAG $BE_TAG
-  waitForHealthyBackend cities-ui
+  waitForHealthyBackend cities-ui-lb-be
 
   echo ""
 }

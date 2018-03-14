@@ -74,11 +74,11 @@ deleteFE() {
   deleteDeploymentAsync $FE_TAG-lb-fw
   deleteDeployment $FE_TAG-ig-as 
   deleteDeployment $FE_TAG-fe
-  deleteDeployment $FE_TAG-web-proxy
-  deleteDeployment $FE_TAG-url-map
-  deleteDeployment $FE_TAG-be
+  deleteDeployment $FE_TAG-lb-web-proxy
+  deleteDeployment $FE_TAG-lb-url-map
+  deleteDeployment $FE_TAG-lb-be
   deleteDeployment $FE_TAG-ig
-  deleteDeploymentAsync $FE_TAG-hc
+  deleteDeploymentAsync $FE_TAG-lb-hc
   deleteDeploymentAsync $FE_TAG-it
 }
 
@@ -93,9 +93,10 @@ deleteGCEEnforcerStuff() {
   for RULE in $RULES
   do
     echo "Deleting firewall rule: $RULE"
-    nohup gcloud compute firewall-rules delete $RULE -q >/dev/null 2>&1 &
+    gcloud compute firewall-rules delete $RULE -q >/dev/null 2>&1 &
     pids="$pids $!"
   done
+  echo $pids
   wait $pids
 }
 

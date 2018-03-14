@@ -322,7 +322,4 @@ createExtLB() {
 
   echo_mesg "Creating Web FE: $1"
   createDeploymentFromTemplate $LB-fe fe.jinja basename:$1,region:$REGION
-  sleep 5
-
-  waitForHealthyBackend $LB-be
 }
