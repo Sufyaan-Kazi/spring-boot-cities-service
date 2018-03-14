@@ -49,7 +49,7 @@ deployCitiesUI() {
   gsutil cp -r startup-scripts/cities-ui.sh gs://${BUCKET_NAME}/startup-scripts/cities-ui.sh
 
   ######### Create Instance Groups for cities ui
-  createRegionalInstanceGroup cities-ui ${APP_REGION} ${PROJECT} $NETWORK $SUBNET
+  createRegionalInstanceGroup cities-ui ${APP_REGION} ${PROJECT} $NETWORK $SUBNET $BUCKET_NAME
   echo "  .... Waiting for apt-get updates to complete and then applications to start for cities-ui .... "
   sleep 120
 
