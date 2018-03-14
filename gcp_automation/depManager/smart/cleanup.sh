@@ -88,13 +88,15 @@ deleteFE() {
 deleteGCEEnforcerStuff() {
   echo "Deleting GCE Enforcer and a.n.other firewall rules"
 
-  RULES=$(gcloud compute firewall-rules list | grep $NETWORK | cut -d ' ' -f1 | xargs)
+  local pids=""
+  local RULES=$(gcloud compute firewall-rules list | grep $NETWORK | cut -d ' ' -f1 | xargs)
   for RULE in $RULES
   do
     echo "Deleting firewall rule: $RULE"
     nohup gcloud compute firewall-rules delete $RULE -q >/dev/null 2>&1 &
+    pids="$pids $!"
   done
-  wait
+  wait $pids
 }
 
 ###
