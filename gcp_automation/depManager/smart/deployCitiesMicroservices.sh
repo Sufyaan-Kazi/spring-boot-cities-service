@@ -101,7 +101,7 @@ createFirewallRules
 
 ######### Launching Browser
 echo_mesg "Determining external URL of application"
-URL=`gcloud compute forwarding-rules list | grep cities-ui-fe | xargs | cut -d ' ' -f 2`
+URL=`gcloud compute forwarding-rules list | grep cities-ui | xargs | cut -d ' ' -f 2`
 echo "  -> URL is $URL"
 checkAppIsReady $URL
 # GCE Enforcer is a bit of a bully sometimes and in addition the app needs to stabilise a bit
