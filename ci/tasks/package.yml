@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: java
+
+inputs:
+  - name: cities-service
+  - name: resource-version
+
+outputs:
+  - name: build
+
+run:
+  path: "cities-service/ci/scripts/package.sh"
+  args: [resource-version/number]

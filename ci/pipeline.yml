@@ -1,0 +1,128 @@
+---
+resources:
+- name: cities-service
+  type: git
+  source:
+    uri: {{git-uri}}
+
+- name: resource-version
+  type: semver
+  source:
+    branch: version
+    driver: git
+    file: version
+    initial_version: 0.0.1
+    uri: {{GIT-SSH-URI}}
+    private_key: {{GIT_KEY}}
+    git_user: {{GIT_USER}}
+
+- name: deployToPCF
+  type: cf
+  source:
+    api: {{CF_API}}
+    username: {{CF_USERNAME}}
+    password: {{CF_PASSWORD}}
+    organization: {{CF_ORG}}
+    space: {{CF_SPACE}}
+    skip_cert_check: true
+
+jobs:
+- name: testSrc
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    trigger: true
+  - task: test
+    file: cities-service/ci/tasks/test.yml
+
+- name: createSpace
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    trigger: true
+  - task: createPCFSpace
+    file: cities-service/ci/tasks/createPCFSpace.yml
+    params:
+      CREATE_FRESH_SPACE: {{CREATE_FRESH_SPACE}}
+      api: {{CF_API}}
+      organization: {{CF_ORG}}
+      space: {{CF_SPACE}}
+      username: {{CF_USERNAME}}
+      password: {{CF_PASSWORD}}
+      ssl: {{CF_SSL}}
+      APPNAME: {{APPNAME}}
+
+
+- name: prepSpace
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    passed:
+      - createSpace
+    trigger: true
+  - task: prepSpace
+    file: cities-service/ci/tasks/prepPCFSpace.yml
+    params:
+      api: {{CF_API}}
+      organization: {{CF_ORG}}
+      space: {{CF_SPACE}}
+      username: {{CF_USERNAME}}
+      password: {{CF_PASSWORD}}
+      ssl: {{CF_SSL}}
+      APPNAME: {{APPNAME}}
+      SERVICE_NAME: {{SERVICE_NAME}}
+
+- name: packageNPush
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    passed:
+      - testSrc
+      - prepSpace
+    trigger: true
+  - get: resource-version
+    params:
+      bump: patch
+  - task: package
+    file: cities-service/ci/tasks/package.yml
+    params:
+      APPNAME: {{APPNAME}}
+  - put: resource-version
+    params: {file: resource-version/number}
+  - task: amendManifest
+    file: cities-service/ci/tasks/amendManifest.yml
+    params:
+      APPNAME: {{APPNAME}}
+      username: {{CF_USERNAME}}
+  - put: deployToPCF
+    params:
+      manifest: output/manifest.yml
+      current_app_name: {{APPNAME}}
+  - task: addVersionInfo
+    file: cities-service/ci/tasks/addVersionInfo.yml
+    params:
+      api: {{CF_API}}
+      organization: {{CF_ORG}}
+      space: {{CF_SPACE}}
+      username: {{CF_USERNAME}}
+      password: {{CF_PASSWORD}}
+      ssl: {{CF_SSL}}
+      APPNAME: {{APPNAME}}
+
+- name: testOnPCF
+  build_logs_to_retain: 5
+  plan:
+  - get: cities-service
+    passed:
+      - packageNPush
+    trigger: true
+  - task: test
+    file: cities-service/ci/tasks/testOnPCF.yml
+    params:
+      api: {{CF_API}}
+      organization: {{CF_ORG}}
+      space: {{CF_SPACE}}
+      username: {{CF_USERNAME}}
+      password: {{CF_PASSWORD}}
+      ssl: {{CF_SSL}}
+      APPNAME: {{APPNAME}}

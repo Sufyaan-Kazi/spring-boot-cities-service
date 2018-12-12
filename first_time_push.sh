@@ -31,36 +31,6 @@ build()
   ./gradlew build 
 }
 
-cf_app_delete()
-{
-  EXISTS=`cf apps | grep ${1} | wc -l | xargs`
-  if [ $EXISTS -ne 0 ]
-  then
-    echo "Deleting app"
-    cf delete -f -r ${1}
-  fi
-}
-
-cf_service_delete()
-{
-  #Were we supplied an App name?
-  if [ ! -z "${2}" ]
-  then
-    EXISTS=`cf services | grep ${1} | grep ${2} | wc -l | xargs`
-    if [ $EXISTS -ne 0 ]
-    then
-      cf unbind-service ${1} ${2}
-    fi
-  fi
-
-  #Delete the Service Instance
-  EXISTS=`cf services | grep ${1} | wc -l | xargs`
-  if [ $EXISTS -ne 0 ]
-  then
-    cf delete-service -f ${1}
-  fi
-}
-
 check_cli_installed()
 {
   #Is the CF CLI installed?
@@ -73,29 +43,24 @@ check_cli_installed()
   fi
 }
 
-clean_cf()
-{
-  echo_msg "Removing previous deployment (if necessary!)"
-  APPS=`cf apps | grep $APPNAME | cut -d" " -f1`
-  for app in ${APPS[@]}
-  do
-    cf delete -f $app
-  done
-  cf_service_delete $DBSERVICE $APPNAME
-  echo_msg "Removing Orphaned Routes"
-  cf delete-orphaned-routes -f
-}
-
 main()
 {
   APPNAME=cities-service
   DBSERVICE=MyDB
   check_cli_installed
   build
-  clean_cf
-  cf create-service p-mysql 100mb-dev MyDB
+
+  echo_msg "Starting Deploy!"
+  SERVICE=`cf marketplace | grep MySQL | head -n 1 | cut -d ' ' -f1 | xargs`
+  PLAN=`cf marketplace -s ${SERVICE} | grep free | tail -n 1 | cut -d ' ' -f1 | xargs`
+  if [ -z $PLAN ]
+  then
+    PLAN=`cf marketplace | grep MySQL | head -n 1 | cut -d ' ' -f1 | xargs`
+  fi
+  cf create-service $SERVICE $PLAN MyDB
   echo "About to push application, you can monitor this using the command: cf logs $APPNAME"
-  cf push -b java_buildpack_offline 
+  BPACK=`cf buildpacks | grep java | grep true | head -n 1 | cut -d ' ' -f1 | xargs`
+  cf push -b $BPACK
 }
 
 SECONDS=0

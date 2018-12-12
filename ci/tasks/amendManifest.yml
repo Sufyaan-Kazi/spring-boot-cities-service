@@ -1,0 +1,17 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: busybox
+
+inputs:
+  - name: cities-service
+  - name: resource-version
+
+outputs:
+  - name: output
+
+run:
+  path: "cities-service/ci/scripts/amendManifest.sh"

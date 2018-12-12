@@ -1,0 +1,14 @@
+git-uri: https://github.com/skazi-pivotal/spring-boot-cities-service.git
+CF_API: <<your cf instance>
+CF_USERNAME: <<your user>
+CF_PASSWORD: <<your password>>
+CF_ORG: <<your org>>
+CF_SPACE: <<your space>>
+CF_SSL: <<--skip-ssl-validation or blank>>
+APPNAME: cities-service
+SERVICE_NAME: MyDB
+CREATE_FRESH_SPACE: <<blank or anything e.g. y>>
+GIT-SSH-URI: git@github.com:skazi-pivotal/spring-boot-cities-service.git
+GIT_USER: <<your github user id>>
+GIT_KEY: |-
+  <<your github private key>>
