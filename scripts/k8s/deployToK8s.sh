@@ -2,6 +2,7 @@
 set -e
 
 . ./vars.txt
+. ./common.sh
 
 main() {
   #Build, tag and push image
@@ -36,42 +37,18 @@ main() {
 
   #Check status
   echo -e "\n********************* $APPNAME deployed, checking status"
-  PODNAME=$(kubectl get pods | grep $APPNAME | grep "ContainerCreating" | cut -d " " -f1)
-  echo "Podname is: $PODNAME"
-  STATUS=$(kubectl get pods $PODNAME | grep -v NAME | xargs | cut -d " " -f3)
-  COUNTER=1
-  while [ $STATUS != "Running" ]
-  do
-    sleep 1.5
-    STATUS=$(kubectl get pods $PODNAME | grep -v NAME | xargs | cut -d " " -f3)
-    COUNTER=$(($COUNTER+1))
-
-    if [ "$COUNTER" -gt 5 ]
-    then
-      echo "Something went wrong .."
-      break  # Skip entire rest of loop.
-    fi
-  done
-  echo "Pod is now $STATUS, waiting for app to start"
-
-  #Wait for logs to say started
-  STARTED=$(kubectl logs $PODNAME | grep ": Started " | wc -l)
-  while [ $STARTED -eq 0 ]
-  do
-    sleep 2
-    STARTED=$(kubectl logs $PODNAME | grep ": Started " | wc -l)
-  done
-  kubectl logs $PODNAME
+  getPodName "ContainerCreating"
+  waitForAppToStart $PODNAME
 
   # Deploy Service
   echo -e "\n**************************** Deploying Service"
-  kubectl create -f $YML_DIR/lb-cities-rest.yml 
+  kubectl create -f $YML_DIR/lb-$APPNAME.yml
   echo "Waiting for external ip address ......."
-  EXT_IP=$(kubectl get svc | grep lb-cities-rest | xargs | cut -d " " -f4)
+  EXT_IP=$(kubectl get svc | grep lb-$APPNAME | xargs | cut -d " " -f4)
   while [ $EXT_IP = "<pending>" ]
   do
     sleep 2
-    EXT_IP=$(kubectl get svc | grep lb-cities-rest | xargs | cut -d " " -f4)
+    EXT_IP=$(kubectl get svc | grep lb-$APPNAME | xargs | cut -d " " -f4)
   done
   sleep 1
   echo "App is now available."
