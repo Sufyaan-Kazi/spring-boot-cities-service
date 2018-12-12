@@ -32,7 +32,7 @@ When you run this app you can access its features using several RESTful endpoint
 * <a href="http://localhost:8080/health" target="_blank">http://localhost:8080/health</a> - This returns the current health of the app, it is provided by Spring Boot Actuator. This and all other actuator endpoints that actuator provides are available immediately.
 
 ## Wait, I want a GUI!
-There is a separate application which can be used as a GUI to consume the data delivered by this Microservice here: https://github.com/skazi-pivotal/spring-boot-cities-ui or feel free to write your own, using that as a guide.
+There is a separate application which can be used as a GUI to consume the data delivered by this Microservice here: https://github.com/Sufyaan-Kazi/spring-boot-cities-ui or feel free to write your own, using that as a guide.
 
 ![Cities](/docs/Cities-ui.png)
 
