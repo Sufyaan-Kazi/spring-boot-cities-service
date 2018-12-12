@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: cities-rest
+spec:
+ replicas: 1
+ selector: 
+   matchLabels:
+      app: cities-rest
+ template:
+   metadata:
+     labels:
+       app: cities-rest
+       date: "DATE"
+   spec:
+     containers:
+     - name: cities-rest
+       image: eu.gcr.io/sufcloudnative/cities-rest:latest
+       imagePullPolicy: Always
+       resources:
+         requests:
+           cpu: 100m
+           memory: 100Mi
+       ports:
+       - containerPort: 8080
+         name: "http-port"
+       readinessProbe:
+         httpGet:
+           path: /actuator
+           port: http-port
+         initialDelaySeconds: 20
+         timeoutSeconds: 5
+         periodSeconds: 5
+       livenessProbe:
+         httpGet:
+           path: /cities
+           port: http-port
+         initialDelaySeconds: 30
+         timeoutSeconds: 10
+         periodSeconds: 30
+         failureThreshold: 3

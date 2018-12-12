@@ -20,11 +20,11 @@ group = 'sufyaankazi'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 
 jar {
-    baseName = 'cities-service'
+    baseName = 'cities-rest'
 }
 
 repositories {
@@ -66,7 +66,7 @@ task wrapper(type: Wrapper) {
 }
 
 task buildDocker(type: Docker, dependsOn: build) {
-  push = true
+  push = false
   applicationName = jar.baseName
   dockerfile = file('src/main/docker/Dockerfile')
   doFirst {
