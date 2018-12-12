@@ -1,19 +1,12 @@
 #!/bin/bash
 set -e
 
-APPNAME=cities-rest
-PROJNAME=sufcloudnative
-REPONAME=eu.gcr.io
-DATE=$(date '+%Y%m%d%H%M%S')
-PROJ_HOME=../..
-YML_DIR=$PROJ_HOME/yml
-SCRIPT=$(readlink -f "$0")
-SCRIPTPATH=$(dirname "$SCRIPT")
+. ./vars.txt
 
 main() {
   #Build, tag and push image
   echo "****************** Building $APPNAME"
-  cd $PROJ_HOME
+  cd ../..
   sudo ./gradlew build buildDocker
   cd $SCRIPTPATH
   echo -e "\n****************** Building Docker Image"

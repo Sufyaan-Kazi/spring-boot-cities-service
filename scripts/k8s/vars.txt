@@ -1,0 +1,7 @@
+APPNAME=cities-rest
+PROJNAME=sufcloudnative
+REPONAME=eu.gcr.io
+DATE=$(date '+%Y%m%d%H%M%S')
+YML_DIR=./yml
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
