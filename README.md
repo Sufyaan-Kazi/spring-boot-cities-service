@@ -22,33 +22,6 @@ If you make a change to the image and simply want to roll an update, run ```./pa
 
 The script uses ymls in the k8s sub-directory. As I was not using a CI/CD tool and always pushed the latest docker image, I additionally add a DATE label in the metadata which can be used to control versions and to force a re-pull of the image using the patch script above.
 
-## Running the app on Google Cloud Platforms' Compute Engine
-Switch to the gcp branch and have a look in the gcp_automation folder. This has sub-directories which eithr use gcloud or deployment manager to deploy the app as vms, with internal and external load balancers and managed instance groups. Also, have a look here: https://github.com/Sufyaan-Kazi/GCP_Deployment_Manager_Samples
-
-## Running the app on Cloud Foundry
-To run this on Cloud Foundry, simply go into the scripts/cf sub-folder and run the script:
-```./first_time_push.sh ```
-
-This script creates the required Cloud Foundry services, tidies up previous installations, pushes the app and binds the app to the service. Once the env is setup correctly, feel free to use the other script which will both build and push the app to cloud foundry:
-
-```./push.sh ```
-
-Alternately to build the application yourself, simply run:
-
-``` ./gradlew clean assemble ```
-
-Because Spring Boot is opinionated, it automatically connects this app to the correct datasources within your Cloud Foundry space using Spring Cloud Connectors - no code is needed in the application itself to read the credentials supplied by Cloud Foundry. The app will auto-populate data in the table of the db schema provisioned by Cloud Foundry in the SI - see below. Please note, when you first deploy this app it will take a long time to start because several SQL inserts are executing.
-
-## Running the app AWS' ELB
-Running the app on AWS using Elastic Beanstalk is a bit more involved. To simplify things I created branches of this project called elbeanstalk. Fundamentally to get this to work you need to overcome the problem that NGinX always assumes the tomcat server is running on port 5000. You can overcome this by directly changing the port in the application props file of the app, but then you would need to use spring boot params/profiles to manage properties for running on your local machine vs AWS. You could then use some form of config service to help. An alternate method is to use ELB software config in your app environment to inject the ports into the AWS environment. More info can be found here:
-https://aws.amazon.com/blogs/devops/deploying-a-spring-boot-application-on-aws-using-aws-elastic-beanstalk/
-
-In addition, use the env params to inject the credentials for your RDS instance (or a.n.other) to allow this app to talk to a database.
-
-Either way, building the right cd pipeline should overcome these issues. This project was originally written with concourse in mind, but the pipelines for this haven't been updated to work with AWS. If using AWS, you may consider using these: https://aws.amazon.com/products/developer-tools/
-
-Finaly, one other option is to just create EC2 instances in your VPC and deploy this app as a war directly to your own tomcat. Creating a war rather than jar is easy (but an odd thing to do ... as Josh Long would say .. make jar not war). Anyway, if you really want to, have a look at what's necessary, look at the build.gradle in the AppD branch of this project.
-
 ## Usage!
 When you run this app you can access its features using several RESTful endpoints. Note - this is only a SMALL sample of the endpoints available, this app exposes HATEOS endpoints. e.g. when running locally:
 * <a href="http://localhost:8080/cities" target="_blank">http://localhost:8080/cities</a> - returns a single page JSON listing cities (20 cities in a page)
@@ -61,9 +34,6 @@ When you run this app you can access its features using several RESTful endpoint
 There is a separate application which can be used as a GUI to consume the data delivered by this Microservice here: https://github.com/skazi-pivotal/spring-boot-cities-ui or feel free to write your own, using that as a guide.
 
 ![Cities](/docs/Cities-ui.png)
-
-## What about Netflix OSS and Spring Cloud Services?
-Netflix OSS is a great way of managing distributed Microservices. There is another branch of this project which takes advantgaes of Spring Cloud Services in Pivotal Cloud Foundry, therfore automatically including several Netflix OSS features. To see this switch to the SCS branch.
 
 ## Can I get some metrics?
 Spring Boot Actuator automatically exposes endpoints which allow you to consume useful information such as health, configprops, for more info check this out: http://docs.spring.io/autorepo/docs/spring-boot/1.2.0.M2/reference/htmlsingle/#production-ready. Alternately if you want to use AppDynamics, check out the AppD branch where I package the app as a war to deploy to tomcat (which you can instrument wth AppDynamics). AppD will then automatically identify and discover the application architecture.
@@ -111,6 +81,33 @@ Spring Boot is designed to get you up and running quickly and it is opinionated,
 * I have not needed to hard code db parameters. When running locally, these are "injected" at runtime using the DataSourceConfig class (it is labelled with a specific @Profile), or just injected by Boot immediatelty when running in Pivotal Cloud Foundry. This can be tweaked to add db pooling etc (https://spring.io/blog/2015/04/27/binding-to-data-services-with-spring-boot-in-cloud-foundry)
 * I have not needed to write any code to locate or parse properties files, Spring Boot just knows where to read them and how. (https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-profiles.html)
 * I did not need to add the flyway plugin or flyway db params to my build.gradle. Spring Boot automaticaly coonfigures and triggers flyway for me when it finds flyway in my classpath.
+
+## Running the app on Google Cloud Platforms' Compute Engine
+Switch to the gcp branch and have a look in the gcp_automation folder. This has sub-directories which eithr use gcloud or deployment manager to deploy the app as vms, with internal and external load balancers and managed instance groups. Also, have a look here: https://github.com/Sufyaan-Kazi/GCP_Deployment_Manager_Samples
+
+## Running the app on Cloud Foundry
+To run this on Cloud Foundry, simply go into the scripts/cf sub-folder and run the script:
+```./first_time_push.sh ```
+
+This script creates the required Cloud Foundry services, tidies up previous installations, pushes the app and binds the app to the service. Once the env is setup correctly, feel free to use the other script which will both build and push the app to cloud foundry:
+
+```./push.sh ```
+
+Alternately to build the application yourself, simply run:
+
+``` ./gradlew clean assemble ```
+
+Because Spring Boot is opinionated, it automatically connects this app to the correct datasources within your Cloud Foundry space using Spring Cloud Connectors - no code is needed in the application itself to read the credentials supplied by Cloud Foundry. The app will auto-populate data in the table of the db schema provisioned by Cloud Foundry in the SI - see below. Please note, when you first deploy this app it will take a long time to start because several SQL inserts are executing.
+
+## Running the app AWS' ELB
+Running the app on AWS using Elastic Beanstalk is a bit more involved. To simplify things I created branches of this project called elbeanstalk. Fundamentally to get this to work you need to overcome the problem that NGinX always assumes the tomcat server is running on port 5000. You can overcome this by directly changing the port in the application props file of the app, but then you would need to use spring boot params/profiles to manage properties for running on your local machine vs AWS. You could then use some form of config service to help. An alternate method is to use ELB software config in your app environment to inject the ports into the AWS environment. More info can be found here:
+https://aws.amazon.com/blogs/devops/deploying-a-spring-boot-application-on-aws-using-aws-elastic-beanstalk/
+
+In addition, use the env params to inject the credentials for your RDS instance (or a.n.other) to allow this app to talk to a database.
+
+Either way, building the right cd pipeline should overcome these issues. This project was originally written with concourse in mind, but the pipelines for this haven't been updated to work with AWS. If using AWS, you may consider using these: https://aws.amazon.com/products/developer-tools/
+
+Finaly, one other option is to just create EC2 instances in your VPC and deploy this app as a war directly to your own tomcat. Creating a war rather than jar is easy (but an odd thing to do ... as Josh Long would say .. make jar not war). Anyway, if you really want to, have a look at what's necessary, look at the build.gradle in the AppD branch of this project.
 
 Do Check out the following URLs:
 * https://spring.io/guides
