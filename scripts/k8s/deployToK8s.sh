@@ -3,11 +3,17 @@ APPNAME=cities-rest
 PROJNAME=sufcloudnative
 REPONAME=eu.gcr.io
 DATE=$(date '+%Y%m%d%H%M%S')
+PROJ_HOME=../..
+YML_DIR=$PROJ_HOME/yml
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
 
 main() {
   #Build, tag and push image
   echo "****************** Building $APPNAME"
+  cd $PROJ_HOME
   sudo ./gradlew build buildDocker
+  cd $SCRIPTPATH
   echo -e "\n****************** Building Docker Image"
   sudo docker tag sufyaankazi/$APPNAME:1.0 $REPONAME/$PROJNAME/$APPNAME
   sudo docker images
@@ -15,15 +21,22 @@ main() {
 
   #Remove previous deployment
   echo -e "\n****************** Removing Previous Deploymet"
-  kubectl get deployments
-  kubectl delete deployment $APPNAME
-  kubectl delete svc lb-$APPNAME
+  EXISTS=$(kubectl get deployments | grep $APPNAME | wc -l)
+  if [ $EXISTS -ne 0 ]
+  then
+    kubectl delete deployment $APPNAME
+  fi
+  EXISTS=$(kubectl get svc | grep lb-$APPNAME | wc -l)
+  if [ $EXISTS -ne 0 ]
+  then
+    kubectl delete svc lb-$APPNAME
+  fi
 
   #Change date label in yaml
   echo -e "\n*********************** Deploying $APPNAME"
-  sed -e 's/DATE/'"$DATE"'/g' yml/$APPNAME.yml > yml/$APPNAME_$DATE.yml
-  kubectl create -f yml/$APPNAME_$DATE.yml
-  rm -f yml/$APPNAME_$DATE.yml
+  sed -e 's/DATE/'"$DATE"'/g' $YML_DIR/$APPNAME.yml > /tmp/$APPNAME_$DATE.yml
+  kubectl create -f /tmp/$APPNAME_$DATE.yml
+  rm -f /tmp/$APPNAME_$DATE.yml
   gcloud container images list --repository $REPONAME/$PROJNAME
 
   #Check status
@@ -47,17 +60,18 @@ main() {
   echo "Pod is now $STATUS, waiting for app to start"
 
   #Wait for logs to say started
-  STARTED=$(kubectl logs $PODNAME | tail -n1 | grep Started | wc -l)
+  STARTED=$(kubectl logs $PODNAME | grep ": Started " | wc -l)
   while [ $STARTED -eq 0 ]
   do
     sleep 2
-    STARTED=$(kubectl logs $PODNAME | tail -n1 | grep Started | wc -l)
+    STARTED=$(kubectl logs $PODNAME | grep ": Started " | wc -l)
   done
   kubectl logs $PODNAME
 
   # Deploy Service
   echo -e "\n**************************** Deploying Service"
-  kubectl create -f yml/lb-cities-rest.yml 
+  kubectl create -f $YML_DIR/lb-cities-rest.yml 
+  echo "Waiting for external ip address ......."
   EXT_IP=$(kubectl get svc | grep lb-cities-rest | xargs | cut -d " " -f4)
   while [ $EXT_IP = "<pending>" ]
   do
@@ -65,7 +79,7 @@ main() {
     EXT_IP=$(kubectl get svc | grep lb-cities-rest | xargs | cut -d " " -f4)
   done
   sleep 1
-  echo "App is available at: $EXT_IP"
+  echo "App is now available."
   curl http://$EXT_IP:8080/
 }
 
