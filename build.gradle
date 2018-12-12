@@ -62,7 +62,7 @@ eclipse {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.0'
+    gradleVersion = '5.0'
 }
 
 task buildDocker(type: Docker, dependsOn: build) {

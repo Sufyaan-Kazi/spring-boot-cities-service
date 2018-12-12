@@ -1,3 +1,3 @@
 ./gradlew build buildDocker
-docker run -p 8080:8080 -t sufyaankazi/cities-service:1.0
-docker run -p 8080:8080 --name service -t sufyaankazi/cities-service:1.0 -d
+docker run -p 8080:8080 -t sufyaankazi/cities-rest:1.0
+docker run -p 8080:8080 --name rest -t sufyaankazi/cities-rest:1.0 -d

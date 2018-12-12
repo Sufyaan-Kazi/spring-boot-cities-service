@@ -12,10 +12,10 @@ getPodName() {
   COUNT=$(kubectl get pods | grep $APPNAME | grep "${2}" | wc -l)
   if [ $COUNT -eq 0 ]
   then
-    PODNAME=$(kubectl get pods | grep $APPNAME | grep "${2}" | cut -d " " -f1)
+    PODNAME=$(kubectl get pods | grep -v NAME | grep $APPNAME | grep "${2}" | cut -d " " -f1)
   else
     #Posibly a new patched pod is about ot replace the old one
-    PODNAME=$(kubectl get pods | grep -v NAME |grep $APPNAME | grep "0/" |cut -d " " -f1)
+    PODNAME=$(kubectl get pods | grep -v NAME | grep $APPNAME | grep "${2}" | grep "0/" | cut -d " " -f1)
   fi
 
   echo "Podname is: $PODNAME"

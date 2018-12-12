@@ -7,7 +7,7 @@ set -e
 main() {
   kubectl patch deployment $APPNAME -p   "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"$DATE\"}}}}}"
   sleep 1.5
-  getPodName "Running"
+  getPodName Running
   waitForAppToStart $PODNAME
   echo "App External ip is: "
   kubectl get svc | grep lb-$APPNAME | xargs | cut -d " " -f4

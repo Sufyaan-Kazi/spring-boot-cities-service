@@ -37,7 +37,7 @@ main() {
 
   #Check status
   echo -e "\n********************* $APPNAME deployed, checking status"
-  getPodName "ContainerCreating"
+  getPodName ContainerCreating
   waitForAppToStart $PODNAME
 
   # Deploy Service
