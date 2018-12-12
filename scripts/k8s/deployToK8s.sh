@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 APPNAME=cities-rest
 PROJNAME=sufcloudnative
 REPONAME=eu.gcr.io

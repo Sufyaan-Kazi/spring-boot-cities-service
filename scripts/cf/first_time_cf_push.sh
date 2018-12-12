@@ -1,5 +1,7 @@
 #!/bin/bash 
 set -e
+SCRIPT=$(readlink -f "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
 
 abort()
 {
@@ -48,6 +50,8 @@ main()
   APPNAME=cities-service
   DBSERVICE=MyDB
   check_cli_installed
+
+  cd ../../
   build
 
   echo_msg "Starting Deploy!"
@@ -61,6 +65,8 @@ main()
   echo "About to push application, you can monitor this using the command: cf logs $APPNAME"
   BPACK=`cf buildpacks | grep java | grep true | head -n 1 | cut -d ' ' -f1 | xargs`
   cf push -b $BPACK
+
+  cd $SCRIPTPATH
 }
 
 SECONDS=0
