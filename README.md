@@ -1,19 +1,5 @@
 https://twitter.com/Sufyaan_Kazi
-
-- [spring-boot-cities-service](#spring-boot-cities-service)
-  * [Running the app locally or connecting directly to a db](#running-the-app-locally-or-connecting-directly-to-a-database)
-  * [Running the app on Cloud Foundry](#running-the-app-on-cloud-foundry)
-  * [Running the app directly on AWS](#running-the-app-directly-on-aws)
-  * [Usage!](#usage)
-  * [Wait, I want a GUI!](#wait-i-want-a-gui)
-  * [What about Netflix OSS and Spring Cloud Services?](#what-about-netflix-oss-and-spring-cloud-services)
-  * [Can I get some metrics?](#can-i-get-some-metrics)
-  * [This app is too simple](#this-app-is-too-simple)
-  * [How is data loaded?](#how-is-data-loaded)
-  * [Achitecture](#achitecture)
-  * [Tell me more](#tell-me-more)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+https://www.linkedin.com/pulse/openshift-vs-cloud-foundry-pt2-k8s-ansible-bosh-sufyaan-kazi/
 
 
 # spring-boot-cities-service
