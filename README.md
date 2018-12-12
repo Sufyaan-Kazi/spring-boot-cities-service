@@ -1,4 +1,5 @@
 https://twitter.com/Sufyaan_Kazi
+
 https://www.linkedin.com/pulse/openshift-vs-cloud-foundry-pt2-k8s-ansible-bosh-sufyaan-kazi/
 
 
