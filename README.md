@@ -3,7 +3,7 @@ https://www.linkedin.com/pulse/openshift-vs-cloud-foundry-pt2-k8s-ansible-bosh-s
 
 
 # spring-boot-cities-service
-This is a very simple Spring Boot project which demonstrates, that with only small a footprint of code its possible to a create a complex webservice which exposes CRUD operations as restful endpoints. It uses Spring Data (JPA) and spring web. This microservice can runs on a local machine or on Kubernetes, on Google Cloud Platform Compute Engine, onOpenShift, on Cloud Foundry, or AWS ELB (or anywhere you can run a Spring Boot app).
+This is a very simple Spring Boot project which demonstrates, that with only small a footprint of code its possible to a create a complex webservice which exposes CRUD operations as restful endpoints. It uses Spring Data (JPA) and spring web. This microservice can runs on a local machine or on Kubernetes, on Google Cloud Platform Compute Engine, on OpenShift, on Cloud Foundry, or AWS ELB (or anywhere you can run a Spring Boot app).
 
 Note: This is a FORK of https://github.com/cf-platform-eng/spring-boot-cities! Thanks to help and tips from my team, as well as Dave Syer and Scott Frederick in this and other branches :) The SCS branch includes updates to work with Spring Cloud Services.
 
