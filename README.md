@@ -20,7 +20,7 @@ To deploy this app to Kubernetes (including GKE in the Google Cloud Paltform), s
 
 If you make a change to the image and simply want to roll an update, run ```./patchApp.sh  ```
 
-The script uses ymls in the k8s sub-directory. As I was not using a CI cd tool and always pushed the latest docker image, I additionally add a DATE label in the metadata which can beused ot control versions and to force a re-pull of the image using the patch script above.
+The script uses ymls in the k8s sub-directory. As I was not using a CI/CD tool and always pushed the latest docker image, I additionally add a DATE label in the metadata which can be used to control versions and to force a re-pull of the image using the patch script above.
 
 ## Running the app on Google Cloud Platforms' Compute Engine
 Switch to the gcp branch and have a look in the gcp_automation folder. This has sub-directories which eithr use gcloud or deployment manager to deploy the app as vms, with internal and external load balancers and managed instance groups. Also, have a look here: https://github.com/Sufyaan-Kazi/GCP_Deployment_Manager_Samples
