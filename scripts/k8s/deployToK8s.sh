@@ -14,6 +14,7 @@ main() {
   sudo docker tag sufyaankazi/$APPNAME:1.0 $REPONAME/$PROJNAME/$APPNAME
   sudo docker images
   sudo docker push $REPONAME/$PROJNAME/$APPNAME:latest
+  sudo docker system prune -f
 
   #Remove previous deployment
   echo -e "\n****************** Removing Previous Deploymet"
