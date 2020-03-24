@@ -1,5 +1,6 @@
 package io.pivotal.fe.demos.repositories;
 
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,7 +16,7 @@ public interface CityRepository extends PagingAndSortingRepository<City, Long> {
     Page<City> findAll(Pageable pageable);
 
     @RestResource(exported = false)
-    City findById(Long id);
+    Optional<City> findById(Long id);
 
     @RestResource(path = "name", rel = "name")
     Page<City> findByNameIgnoreCase(@Param("q") String name, Pageable pageable);

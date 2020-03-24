@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.10.RELEASE'
+        springBootVersion = '2.2.5.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -24,7 +24,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 
 jar {
-    baseName = 'cities-rest'
+    archiveBaseName = 'cities-rest'
 }
 
 repositories {
@@ -41,17 +41,23 @@ allprojects {
 
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile("org.springframework.boot:spring-boot-starter-actuator")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-	compile("org.springframework.boot:spring-boot-starter-data-rest")
-	compile 'org.springframework.cloud:spring-cloud-spring-service-connector'
-	compile 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
+    compileOnly('org.springframework.boot:spring-boot-starter-web')
+    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
+    compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+	compileOnly("org.springframework.boot:spring-boot-starter-data-rest")
+	compileOnly 'org.springframework.cloud:spring-cloud-spring-service-connector'
+	compileOnly 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
 	//runtime("org.hsqldb:hsqldb")
-	runtime('com.h2database:h2')
+	runtimeOnly('com.h2database:h2')
+	runtimeOnly('org.springframework.boot:spring-boot-starter-web')
+	runtimeOnly('org.springframework.boot:spring-boot-starter-actuator')
+	runtimeOnly('org.springframework.boot:spring-boot-starter-data-jpa')
+	runtimeOnly('org.springframework.boot:spring-boot-starter-data-rest')
 	//runtime("mysql:mysql-connector-java")
-	runtime("org.flywaydb:flyway-core")
-    testCompile('org.springframework.boot:spring-boot-starter-test') 
+	runtimeOnly("org.flywaydb:flyway-core")
+    testCompileOnly('org.springframework.boot:spring-boot-starter-test') 
+    testCompileOnly('org.springframework.boot:spring-boot-starter-web')
+    testCompileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
 }
 
 eclipse {
@@ -63,7 +69,7 @@ eclipse {
 
 task buildDocker(type: Docker, dependsOn: build) {
   push = false
-  applicationName = jar.baseName
+  applicationName = jar.archiveBaseName
   dockerfile = file('src/main/docker/Dockerfile')
   doFirst {
     copy {

@@ -17,7 +17,7 @@ main() {
   sudo docker system prune -f
 
   #Remove previous deployment
-  echo -e "\n****************** Removing Previous Deploymet"
+  echo -e "\n****************** Removing Previous Deployment"
   EXISTS=$(kubectl get deployments | grep $APPNAME | wc -l)
   if [ $EXISTS -ne 0 ]
   then
