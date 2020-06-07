@@ -26,11 +26,11 @@ import org.springframework.web.client.RestTemplate;
  * 
  * @author skazi
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
 public class TestRestAPICityRepository {
-        @Autowired
-        private TestRestTemplate restTemplate;
+
+	@Autowired
+	private TestRestTemplate restTemplate;
 
 	@Value("${local.server.port}")
 	int port;

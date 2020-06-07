@@ -12,15 +12,17 @@ buildscript {
 }
 
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
 }
 
 group = 'sufyaankazi'
 
-apply plugin: 'java'
+//apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
+//apply plugin: 'org.springframework.boot'
 apply plugin: 'docker'
 
 jar {
@@ -41,23 +43,23 @@ allprojects {
 
 
 dependencies {
-    compileOnly('org.springframework.boot:spring-boot-starter-web')
-    compileOnly("org.springframework.boot:spring-boot-starter-actuator")
-    compileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
-	compileOnly("org.springframework.boot:spring-boot-starter-data-rest")
-	compileOnly 'org.springframework.cloud:spring-cloud-spring-service-connector'
-	compileOnly 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
-	//runtime("org.hsqldb:hsqldb")
-	runtimeOnly('com.h2database:h2')
-	runtimeOnly('org.springframework.boot:spring-boot-starter-web')
-	runtimeOnly('org.springframework.boot:spring-boot-starter-actuator')
-	runtimeOnly('org.springframework.boot:spring-boot-starter-data-jpa')
-	runtimeOnly('org.springframework.boot:spring-boot-starter-data-rest')
+    //testImplementation('org.springframework.boot:spring-boot-starter-web')
+    // https://mvnrepository.com/artifact/org.springframework/spring-web
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    //testImplementation group: 'org.springframework', name: 'spring-web', version: '5.2.6.RELEASE'
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-data-rest")
+	implementation 'org.springframework.cloud:spring-cloud-spring-service-connector'
+	implementation 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
 	//runtime("mysql:mysql-connector-java")
 	runtimeOnly("org.flywaydb:flyway-core")
-    testCompileOnly('org.springframework.boot:spring-boot-starter-test') 
-    testCompileOnly('org.springframework.boot:spring-boot-starter-web')
     testCompileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+    testImplementation('junit:junit:4.13')
 }
 
 eclipse {
@@ -80,6 +82,8 @@ task buildDocker(type: Docker, dependsOn: build) {
 }
 
 test {
+    useJUnitPlatform()
+    maxParallelForks = 2
     testLogging {
         events "passed", "skipped", "failed", "standardError"
         //events "passed", "skipped", "failed", "standardOut", "standardError"
