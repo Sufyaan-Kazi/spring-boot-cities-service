@@ -1,4 +1,4 @@
-package io.pivotal.fe.demos.config;
+package com.google.ce.demos.config;
 
 import org.springframework.cloud.config.java.AbstractCloudConfig;
 import org.springframework.context.annotation.Bean;

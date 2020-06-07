@@ -1,10 +1,7 @@
-package io.pivotal.fe.demos;
+package com.google.ce.demos;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-import java.util.ArrayList;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,14 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import io.pivotal.fe.demos.domain.City;
-import io.pivotal.fe.demos.repositories.CityRepository;
+import com.google.ce.demos.domain.City;
+import com.google.ce.demos.repositories.CityRepository;
 
 /**
  * Test inspired by:

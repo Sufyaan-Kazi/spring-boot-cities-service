@@ -1,12 +1,10 @@
-package io.pivotal.fe.demos.controller;
+package com.google.ce.demos.controller;
 
+import com.google.ce.demos.domain.City;
+import com.google.ce.demos.repositories.CityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.pivotal.fe.demos.domain.City;
-import io.pivotal.fe.demos.repositories.CityRepository;
 
 /**
  * Class to add optional non-HATEOS and non-pageable list of all cities

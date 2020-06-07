@@ -1,4 +1,4 @@
-package io.pivotal.fe.demos.repositories;
+package com.google.ce.demos.repositories;
 
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import io.pivotal.fe.demos.domain.City;
+import com.google.ce.demos.domain.City;
 
 @RepositoryRestResource(collectionResourceRel = "cities", path = "cities")
 public interface CityRepository extends PagingAndSortingRepository<City, Long> {

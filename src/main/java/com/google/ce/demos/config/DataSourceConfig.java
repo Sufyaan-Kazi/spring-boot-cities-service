@@ -1,4 +1,4 @@
-package io.pivotal.fe.demos.config;
+package com.google.ce.demos.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

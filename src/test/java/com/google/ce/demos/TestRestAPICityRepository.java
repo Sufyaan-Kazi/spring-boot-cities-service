@@ -1,4 +1,4 @@
-package io.pivotal.fe.demos;
+package com.google.ce.demos;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

@@ -1,4 +1,4 @@
-package io.pivotal.fe.demos.domain;
+package com.google.ce.demos.domain;
 
 import java.io.Serializable;
 
