@@ -53,12 +53,13 @@ dependencies {
     //testImplementation group: 'org.springframework', name: 'spring-web', version: '5.2.6.RELEASE'
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-data-rest")
-	implementation 'org.springframework.cloud:spring-cloud-spring-service-connector'
-	implementation 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
-	//runtime("mysql:mysql-connector-java")
-	runtimeOnly("org.flywaydb:flyway-core")
-    testCompileOnly("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-data-rest")
+    implementation 'org.springframework.cloud:spring-cloud-spring-service-connector'
+    implementation 'org.springframework.cloud:spring-cloud-cloudfoundry-connector'
+    //runtime("org.hsqldb:hsqldb")
+    implementation('com.h2database:h2')
+    //runtime("mysql:mysql-connector-java")
+    runtimeOnly("org.flywaydb:flyway-core")
     testImplementation('junit:junit:4.13')
 }
 
